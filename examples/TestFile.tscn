@@ -1,0 +1,79 @@
+[gd_scene load_steps=13 format=2]
+
+; comment
+[ext_resource path="res://CombatSystem/Background/steppes.png" type="Texture" id=1]
+[ext_resource path="res://CombatSystem/UserInterface/UILayer.gd" type="Script" id=2]
+[ext_resource path="res://CombatSystem/UserInterface/UIDamageLabel/UIDamageLabelBuilder.tscn" type="PackedScene" id=3]
+[ext_resource path="res://CombatSystem/UserInterface/UIActionMenu/UISelectBattlerArrow.tscn" type="PackedScene" id=4]
+[ext_resource path="res://CombatSystem/ActiveTurnQueue.gd" type="Script" id=5]
+[ext_resource path="res://CombatSystem/Battler/Characters/BugCat.tscn" type="PackedScene" id=6]
+[ext_resource path="res://CombatSystem/Battler/Stats/bug_cat_level_2.tres" type="Resource" id=7]
+[ext_resource path="res://CombatSystem/Battler/Characters/Bear.tscn" type="PackedScene" id=9]
+[ext_resource path="res://CombatDemo.gd" type="Script" id=11]
+[ext_resource path="res://CombatSystem/UserInterface/UITurnBar/UITurnBar.tscn" type="PackedScene" id=12]
+[ext_resource path="res://CombatSystem/UserInterface/UIBattlerHUD/UIBattlerHUDList.tscn" type="PackedScene" id=14]
+[ext_resource path="res://CombatSystem/UserInterface/UIActionMenu/UIActionMenu.tscn" type="PackedScene" id=16]
+
+[node name="CombatDemo" type="Node2D"]
+script = ExtResource( 11 )
+
+[node name="Background" type="CanvasLayer" parent="."]
+layer = -10
+
+[node name="Steppes" type="Sprite" parent="Background"]
+position = Vector2( 960.698, 541.614 )
+texture = ExtResource( 1 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ActiveTurnQueue" type="Node2D" parent="."]
+script = ExtResource( 5 )
+UIActionMenuScene = ExtResource( 16 )
+SelectArrow = ExtResource( 4 )
+
+[node name="Bear" parent="ActiveTurnQueue" instance=ExtResource( 9 )]
+position = Vector2( 1443.92, 775.934 )
+scale = Vector2( -1, 1 )
+
+[node name="BugCat" parent="ActiveTurnQueue" instance=ExtResource( 6 )]
+position = Vector2( 516.902, 720.435 )
+
+[node name="BugCat2" parent="ActiveTurnQueue" instance=ExtResource( 6 )]
+position = Vector2( 268.272, 916 )
+stats = ExtResource( 7 )
+
+[node name="UI" type="CanvasLayer" parent="."]
+script = ExtResource( 2 )
+
+[node name="UITurnBar" parent="UI" instance=ExtResource( 12 )]
+margin_left = 0.697998
+margin_top = 1.61401
+margin_right = 0.697998
+margin_bottom = 1.61389
+
+[node name="UIBattlerHUDList" parent="UI" instance=ExtResource( 14 )]
+margin_top = 232.0
+margin_bottom = -164.0
+
+[node name="UIDamageLabelBuilder" parent="UI" instance=ExtResource( 3 )]
+[connection signal="combat_ended" from="." to="UI" method="_on_CombatDemo_combat_ended"]
+
+; added this from documentation...
+[sub_resource id=1 type="ArrayMesh"]
+
+surfaces/0 = {
+    "primitive":4,
+    "arrays":[
+        Vector3Array(0.0, 1.0, -1.0, 0.866025, -1.0, -0.5, 0.0, -1.0, -1.0, 0.866025, 1.0, -0.5, 0.866025, -1.0, 0.5, 0.866025, 1.0, 0.5, -8.74228e-08, -1.0, 1.0, -8.74228e-08, 1.0, 1.0, -0.866025, -1.0, 0.5, -0.866025, 1.0, 0.5, -0.866025, -1.0, -0.5, -0.866025, 1.0, -0.5),
+        Vector3Array(0.0, 0.609973, -0.792383, 0.686239, -0.609973, -0.396191, 0.0, -0.609973, -0.792383, 0.686239, 0.609973, -0.396191, 0.686239, -0.609973, 0.396191, 0.686239, 0.609973, 0.396191, 0.0, -0.609973, 0.792383, 0.0, 0.609973, 0.792383, -0.686239, -0.609973, 0.396191, -0.686239, 0.609973, 0.396191, -0.686239, -0.609973, -0.396191, -0.686239, 0.609973, -0.396191),
+        null, ; No Tangents,
+        null, ; no Vertex Colors,
+        null, ; No UV1,
+        null, ; No UV2,
+        null, ; No Bones,
+        null, ; No Weights,
+        IntArray(0, 2, 1, 3, 1, 4, 5, 4, 6, 7, 6, 8, 0, 5, 9, 9, 8, 10, 11, 10, 2, 1, 10, 8, 0, 1, 3, 3, 4, 5, 5, 6, 7, 7, 8, 9, 5, 0, 3, 0, 9, 11, 9, 5, 7, 9, 10, 11, 11, 2, 0, 10, 1, 2, 1, 6, 4, 6, 1, 8)
+    ],
+    "morph_arrays":[]
+}
