@@ -9,6 +9,11 @@ import (
 	"testing"
 )
 
+func TestParseFail(t *testing.T) {
+	_, err := Parse(strings.NewReader("This is not a proper TSCN file"))
+	assert.Error(t, err)
+}
+
 func TestParseFileDescriptorWithAttributes(t *testing.T) {
 	content := "[gd_scene load_steps=0 format=2]"
 

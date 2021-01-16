@@ -98,22 +98,20 @@ func (v *GdValue) ToString() string {
 		}
 		return fmt.Sprintf("[%s]", strings.Join(values, ", "))
 	case string:
-		return value
+		return fmt.Sprintf("\"%s\"", value)
 	case int64:
 		return fmt.Sprintf("%d", value)
 	case float64:
 		return fmt.Sprintf("%f", value)
 	case bool:
 		return fmt.Sprintf("%v", value)
-	case nil:
-		return "null"
 	case GdType:
 		var values []string
 		for _, param := range value.Parameters {
 			values = append(values, param.ToString())
 		}
 		return fmt.Sprintf("%s (%s)", v.Type.Key, strings.Join(values, ", "))
+	default:
+		return "null"
 	}
-
-	return "???"
 }
