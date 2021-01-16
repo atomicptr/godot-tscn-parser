@@ -7,26 +7,26 @@ import (
 )
 
 type GdField struct {
-	Key   string   `@Ident "="`
-	Value *GdValue ` @@`
+	Key   string   `parser:"@Ident \"=\""`
+	Value *GdValue `parser:" @@"`
 	Pos   lexer.Position
 }
 
 type GdMapField struct {
-	Key   string   `@String ":"`
-	Value *GdValue ` @@`
+	Key   string   `parser:"@String \":\""`
+	Value *GdValue `parser:" @@"`
 	Pos   lexer.Position
 }
 
 type GdValue struct {
-	String  *string       ` @String`
-	Integer *int64        `| @Int`
-	Float   *float64      `| @Float`
-	Bool    *bool         `| (@"true" | "false")`
-	Map     []*GdMapField `| "{" ( @@ ( "," @@ )* )? "}"`
-	Array   []*GdValue    `| "[" ( @@ ( "," @@ )* )? (",")? "]"`
-	Null    *bool         `| (@"null")`
-	Type    *GdType       `| @@`
+	String  *string       `parser:" @String"`
+	Integer *int64        `parser:"| @Int"`
+	Float   *float64      `parser:"| @Float"`
+	Bool    *bool         `parser:"| (@\"true\" | \"false\")"`
+	Map     []*GdMapField `parser:"| \"{\" ( @@ ( \",\" @@ )* )? \"}\""`
+	Array   []*GdValue    `parser:"| \"[\" ( @@ ( \",\" @@ )* )? (\",\")? \"]\""`
+	Null    *bool         `parser:"| (@\"null\")"`
+	Type    *GdType       `parser:"| @@"`
 	Pos     lexer.Position
 }
 

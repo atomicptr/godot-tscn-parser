@@ -7,13 +7,41 @@ import (
 )
 
 var tscnLexer = stateful.MustSimple([]stateful.Rule{
-	{"Ident", `([0-9]+/)?[a-zA-Z_][a-zA-Z_\d/]*`, nil},
-	{"String", `"[^"]*"`, nil},
-	{"Float", `-?[0-9]*\.[0-9]+(e\-[0-9]+)?\b`, nil},
-	{"Int", `-?[0-9]+\b`, nil},
-	{"Punct", `[][=():,{}]`, nil},
-	{"comment", `;[^\n]*`, nil},
-	{"whitespace", `\s+`, nil},
+	{
+		Name:    "Ident",
+		Pattern: `([0-9]+/)?[a-zA-Z_][a-zA-Z_\d/]*`,
+		Action:  nil,
+	},
+	{
+		Name:    "String",
+		Pattern: `"[^"]*"`,
+		Action:  nil,
+	},
+	{
+		Name:    "Float",
+		Pattern: `-?[0-9]*\.[0-9]+(e\-[0-9]+)?\b`,
+		Action:  nil,
+	},
+	{
+		Name:    "Int",
+		Pattern: `-?[0-9]+\b`,
+		Action:  nil,
+	},
+	{
+		Name:    "Punct",
+		Pattern: `[][=():,{}]`,
+		Action:  nil,
+	},
+	{
+		Name:    "comment",
+		Pattern: `;[^\n]*`,
+		Action:  nil,
+	},
+	{
+		Name:    "whitespace",
+		Pattern: `\s+`,
+		Action:  nil,
+	},
 })
 
 var tscnParser = participle.MustBuild(
