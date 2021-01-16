@@ -1,3 +1,4 @@
+// Package parser implements a participle parser for the TSCN file format
 package parser
 
 import (
@@ -50,6 +51,7 @@ var tscnParser = participle.MustBuild(
 	participle.Unquote("String"),
 )
 
+// Parse content and return a simple representation of the file format.
 func Parse(r io.Reader) (*TscnFile, error) {
 	ast := &TscnFile{}
 	err := tscnParser.Parse("", r, ast)

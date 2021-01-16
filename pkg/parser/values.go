@@ -6,22 +6,26 @@ import (
 	"strings"
 )
 
+// GdField represents a field with a value
 type GdField struct {
 	Key   string   `parser:"@Ident \"=\""`
 	Value *GdValue `parser:" @@"`
 	Pos   lexer.Position
 }
 
+// GdMapField represents a field with a value within a map
 type GdMapField struct {
 	Key   string   `parser:"@String \":\""`
 	Value *GdValue `parser:" @@"`
 	Pos   lexer.Position
 }
 
-func (kv GdMapField) ToString() string {
+// ToString returns a string representation of a GdMapField
+func (kv *GdMapField) ToString() string {
 	return fmt.Sprintf("\"%s\": %s", kv.Key, kv.Value.ToString())
 }
 
+// GdValue represents a value
 type GdValue struct {
 	Map          []*GdMapField `parser:" \"{\" ( @@ ( \",\" @@ )* )? \"}\""`
 	KeyValuePair *GdMapField   `parser:"| @@"`
@@ -35,7 +39,8 @@ type GdValue struct {
 	Pos          lexer.Position
 }
 
-func (v GdValue) Raw() interface{} {
+// Raw returns an interface{} which contains the actual value of the associated GdValue
+func (v *GdValue) Raw() interface{} {
 	if len(v.Map) != 0 {
 		return v.Map
 	}
@@ -75,7 +80,8 @@ func (v GdValue) Raw() interface{} {
 	return nil
 }
 
-func (v GdValue) ToString() string {
+// ToString returns a string representation of the associated GdValue
+func (v *GdValue) ToString() string {
 	switch value := v.Raw().(type) {
 	case []*GdMapField:
 		var values []string
