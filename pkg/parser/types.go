@@ -18,7 +18,7 @@ type GdResource struct {
 }
 
 type GdType struct {
-	Key        string     `parser:" @Ident \"(\""`
-	Parameters []*GdValue `parser:"@@ ( \",\" @@ )* \")\""`
+	Key        string     `parser:" @Ident (\"(\""`
+	Parameters []*GdValue `parser:"@@ ( \",\" @@ )* \")\")?"`
 	Pos        lexer.Position
 }

@@ -9,7 +9,7 @@ import (
 var tscnLexer = stateful.MustSimple([]stateful.Rule{
 	{
 		Name:    "Ident",
-		Pattern: `([0-9]+/)?[a-zA-Z_][a-zA-Z_\d/]*`,
+		Pattern: `([0-9]+)?/?[a-zA-Z_][a-zA-Z_\d/]*`,
 		Action:  nil,
 	},
 	{

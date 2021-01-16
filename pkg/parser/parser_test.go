@@ -161,6 +161,13 @@ script = ExtResource( 1 )`
 	}
 }
 
+func TestReferenceTypeWithKeyValuePairs(t *testing.T) {
+	content := `[gd_scene format=2]
+reference_type = Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false)`
+	_, err := Parse(strings.NewReader(content))
+	assert.NoError(t, err)
+}
+
 // keep regression tests at the bottom please (above integration tests though)
 func TestRegressionFieldNamesStartingWithNumbers(t *testing.T) {
 	content := `[gd_scene format=2]
@@ -201,11 +208,6 @@ func TestIntegrationParseFixtures(t *testing.T) {
 	for _, file := range files {
 		// ignore the README.md file
 		if filepath.Base(file) == "README.md" {
-			continue
-		}
-
-		if strings.HasPrefix(filepath.Base(file), "_") {
-			fmt.Printf("--- WARN: Ignored file \"%s\"\n", file)
 			continue
 		}
 
