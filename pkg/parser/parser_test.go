@@ -3,6 +3,8 @@ package parser
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -11,7 +13,7 @@ func TestParseFileDescriptorWithAttributes(t *testing.T) {
 	content := "[gd_scene load_steps=0 format=2]"
 
 	scene, err := Parse(strings.NewReader(content))
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	assert.Equal(t, "gd_scene", scene.Key)
 	assert.Equal(t, 2, len(scene.Attributes))
@@ -50,7 +52,7 @@ map_field = {
     "float_value": 13.37
 }`
 	scene, err := Parse(strings.NewReader(content))
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	for _, field := range scene.Fields {
 		if !assertField(t, field, "int_field", int64(10)) {
@@ -94,7 +96,7 @@ map_field = {
 func TestParseFieldWithoutFileDescriptor(t *testing.T) {
 	content := "string_value = \"Yes this works!\""
 	scene, err := Parse(strings.NewReader(content))
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	assert.Equal(t, 1, len(scene.Fields))
 	assert.Equal(t, "Yes this works!", *scene.Fields[0].Value.String)
@@ -103,7 +105,7 @@ func TestParseFieldWithoutFileDescriptor(t *testing.T) {
 func TestFieldDescriptorWithoutArguments(t *testing.T) {
 	content := `[gd_scene]`
 	scene, err := Parse(strings.NewReader(content))
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, 0, len(scene.Attributes))
 }
 
@@ -115,7 +117,7 @@ func TestSectionAttributes(t *testing.T) {
 script = ExtResource( 1 )`
 
 	scene, err := Parse(strings.NewReader(content))
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	assert.Equal(t, 3, len(scene.Sections))
 
@@ -156,5 +158,28 @@ script = ExtResource( 1 )`
 		for _, attribute := range actual.Attributes {
 			assert.Equal(t, expected.Values[attribute.Key], attribute.Value.Raw())
 		}
+	}
+}
+
+// keep integration tests at the bottom please
+func TestIntegrationParseFixtures(t *testing.T) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+
+	files, err := filepath.Glob(filepath.Join(cwd, "fixtures", "*.tscn"))
+	if err != nil {
+		panic(err)
+	}
+
+	for _, file := range files {
+		f, err := os.Open(file)
+		if err != nil {
+			panic(err)
+		}
+
+		_, err = Parse(f)
+		assert.NoError(t, err)
 	}
 }
