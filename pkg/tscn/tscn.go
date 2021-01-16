@@ -7,12 +7,12 @@ import (
 )
 
 // TODO: do not use parser.GdScene here... build a proper node tree
-func Parse(r io.Reader) (*parser.GdScene, error) {
+func Parse(r io.Reader) (*parser.TscnFile, error) {
 	return parser.Parse(r)
 }
 
 // TODO: do not use parser.GdScene here... build a proper node tree
-func LoadFileAndParse(file string) (*parser.GdScene, error) {
+func LoadFileAndParse(file string) (*parser.TscnFile, error) {
 	f, err := os.Open(file)
 	if err != nil {
 		return nil, err

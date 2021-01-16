@@ -1,4 +1,3 @@
-// TODO: this file will be deleted at some point
 package main
 
 import (
@@ -7,9 +6,29 @@ import (
 )
 
 func main() {
-	scene, err := tscn.LoadFileAndParse("examples/TestFile.tscn")
+	scene, err := tscn.LoadFileAndParse("./TestFile.tscn")
 	if err != nil {
 		panic(err)
+	}
+
+	if scene.Key != "" {
+		fmt.Println("File Descriptor Type:", scene.Key, "[", scene.Pos, "]")
+	}
+
+	if len(scene.Attributes) > 0 {
+		fmt.Println("Attributes:")
+
+		for _, attribute := range scene.Attributes {
+			fmt.Printf("\t%s = %s [%s]\n", attribute.Key, attribute.Value.ToString(), attribute.Pos)
+		}
+	}
+
+	if len(scene.Fields) > 0 {
+		fmt.Println("Fields:")
+
+		for _, field := range scene.Fields {
+			fmt.Printf("\t%s = %s [%s]\n", field.Key, field.Value.ToString(), field.Pos)
+		}
 	}
 
 	for _, section := range scene.Sections {
@@ -24,7 +43,7 @@ func main() {
 		}
 
 		if len(section.Fields) > 0 {
-			fmt.Println("Fields:")
+			fmt.Println("Attributes:")
 
 			for _, field := range section.Fields {
 				fmt.Printf("\t%s = %s [%s]\n", field.Key, field.Value.ToString(), field.Pos)

@@ -30,51 +30,71 @@ type GdValue struct {
 	Pos     lexer.Position
 }
 
-// TODO: possibly not a very useful function
-func (v GdValue) ToString() string {
+func (v GdValue) Raw() interface{} {
 	if v.String != nil {
 		return *v.String
 	}
 
 	if v.Integer != nil {
-		return fmt.Sprintf("%d", *v.Integer)
+		return *v.Integer
 	}
 
 	if v.Float != nil {
-		return fmt.Sprintf("%f", *v.Float)
+		return *v.Float
 	}
 
 	if v.Bool != nil {
-		return fmt.Sprintf("%v", *v.Bool)
+		return *v.Bool
 	}
 
 	if len(v.Map) != 0 {
-		var values []string
-		for _, kv := range v.Map {
-			values = append(values, fmt.Sprintf("\"%s\": %s", kv.Key, kv.Value.ToString()))
-		}
-		return fmt.Sprintf("Map {%s}", strings.Join(values, ", "))
+		return v.Map
 	}
 
 	if len(v.Array) != 0 {
-		var values []string
-		for _, value := range v.Array {
-			values = append(values, value.ToString())
-		}
-		return fmt.Sprintf("[%s]", strings.Join(values, ", "))
+		return v.Array
 	}
 
 	if v.Null != nil {
-		return "null"
+		return nil
 	}
 
 	if v.Type != nil {
-		var values []string
+		return *v.Type
+	}
 
-		for _, param := range v.Type.Parameters {
+	return nil
+}
+
+func (v GdValue) ToString() string {
+	switch value := v.Raw().(type) {
+	case string:
+		return value
+	case int64:
+		return fmt.Sprintf("%d", value)
+	case float64:
+		return fmt.Sprintf("%f", value)
+	case bool:
+		return fmt.Sprintf("%v", value)
+	case []*GdMapField:
+		var values []string
+		for _, kv := range value {
+			values = append(values, fmt.Sprintf("\"%s\": %s", kv.Key, kv.Value.ToString()))
+		}
+		return fmt.Sprintf("Map {%s}", strings.Join(values, ", "))
+	case []*GdValue:
+		var values []string
+		for _, v := range value {
+			values = append(values, v.ToString())
+		}
+		return fmt.Sprintf("[%s]", strings.Join(values, ", "))
+	case nil:
+		return "null"
+	case GdType:
+		var values []string
+		for _, param := range value.Parameters {
 			values = append(values, param.ToString())
 		}
-
 		return fmt.Sprintf("%s (%s)", v.Type.Key, strings.Join(values, ", "))
 	}
 

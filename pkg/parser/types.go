@@ -2,10 +2,12 @@ package parser
 
 import "github.com/alecthomas/participle/v2/lexer"
 
-type GdScene struct {
-	FileDescriptors []*GdField    `"[" "gd_scene" @@* "]"`
-	Sections        []*GdResource `@@*`
-	Pos             lexer.Position
+type TscnFile struct {
+	Key        string        `("[" @Ident`
+	Attributes []*GdField    `@@* "]")?`
+	Fields     []*GdField    `@@*`
+	Sections   []*GdResource `@@*`
+	Pos        lexer.Position
 }
 
 type GdResource struct {

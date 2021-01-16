@@ -14,6 +14,14 @@ func main() {
 }
 ```
 
+## FAQ
+
+### My TSCN file isn't working, can you fix it?
+
+Please open an issue with your TSCN file.
+
+Or even better, open a pull request which adds the file to pkg/parser/fixtures.
+
 ## License
 
 MIT

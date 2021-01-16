@@ -17,13 +17,13 @@ var tscnLexer = stateful.MustSimple([]stateful.Rule{
 })
 
 var tscnParser = participle.MustBuild(
-	&GdScene{},
+	&TscnFile{},
 	participle.Lexer(tscnLexer),
 	participle.Unquote("String"),
 )
 
-func Parse(r io.Reader) (*GdScene, error) {
-	ast := &GdScene{}
+func Parse(r io.Reader) (*TscnFile, error) {
+	ast := &TscnFile{}
 	err := tscnParser.Parse("", r, ast)
 	if err != nil {
 		return nil, err
