@@ -161,6 +161,29 @@ script = ExtResource( 1 )`
 	}
 }
 
+// keep regression tests at the bottom please (above integration tests though)
+func TestRegressionFieldNamesStartingWithNumbers(t *testing.T) {
+	content := `[gd_scene format=2]
+[sub_resource type="TileSet" id=25]
+0/name = "TileSet1.svg 0"
+0/texture = ExtResource( 2 )
+0/tex_offset = Vector2( 0, 0 )
+0/modulate = Color( 1, 1, 1, 1 )
+0/region = Rect2( 0, 0, 896, 512 )`
+	_, err := Parse(strings.NewReader(content))
+	assert.NoError(t, err)
+}
+
+func TestRegressionEmptyComment(t *testing.T) {
+	content := `[gd_scene format=2]
+; This is a comment
+;
+; Notice the comment above? Yeah no comment at all
+field_name = "value"`
+	_, err := Parse(strings.NewReader(content))
+	assert.NoError(t, err)
+}
+
 // keep integration tests at the bottom please
 func TestIntegrationParseFixtures(t *testing.T) {
 	cwd, err := os.Getwd()
@@ -168,12 +191,24 @@ func TestIntegrationParseFixtures(t *testing.T) {
 		panic(err)
 	}
 
-	files, err := filepath.Glob(filepath.Join(cwd, "fixtures", "*.tscn"))
+	files, err := filepath.Glob(filepath.Join(cwd, "fixtures", "*"))
 	if err != nil {
 		panic(err)
 	}
 
+	assert.NotEmpty(t, files)
+
 	for _, file := range files {
+		// ignore the README.md file
+		if filepath.Base(file) == "README.md" {
+			continue
+		}
+
+		if strings.HasPrefix(filepath.Base(file), "_") {
+			fmt.Printf("--- WARN: Ignored file \"%s\"\n", file)
+			continue
+		}
+
 		f, err := os.Open(file)
 		if err != nil {
 			panic(err)

@@ -12,7 +12,7 @@ var tscnLexer = stateful.MustSimple([]stateful.Rule{
 	{"Float", `-?[0-9]*\.[0-9]+(e\-[0-9]+)?\b`, nil},
 	{"Int", `-?[0-9]+\b`, nil},
 	{"Punct", `[][=():,{}]`, nil},
-	{"comment", `;[^\n]+`, nil},
+	{"comment", `;[^\n]*`, nil},
 	{"whitespace", `\s+`, nil},
 })
 
