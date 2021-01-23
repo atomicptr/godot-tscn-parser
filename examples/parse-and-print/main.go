@@ -42,9 +42,9 @@ func main() {
 		}
 	}
 
-	if scene.RootNode != nil {
+	if scene.Node != nil {
 		fmt.Println("## Node Tree:")
-		printNodes(scene.RootNode)
+		printNodes(scene.Node)
 	}
 }
 

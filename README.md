@@ -12,8 +12,36 @@ Powered by the great [participle](https://github.com/alecthomas/participle) pars
 ```go
 package main
 
+import (
+    "github.com/atomicptr/godot-tscn-parser/pkg/tscn"
+    "os"
+    "fmt"
+)
+
 func main() {
-	fmt.Println("Coming soon...")
+    // open the file
+    f, err := os.Open("./path/to/my/scene.tscn")
+    if err != nil {
+        panic(err)
+    }
+    defer f.Close()
+
+    // parse the scene, this accepts an io.Reader
+    scene, err := tscn.ParseScene(f)
+    if err != nil {
+        panic(err)
+    }
+    
+    // get the node "Sprite" which is a child of "Player" which is a child of
+    // of the root node
+    playerSpriteNode, err := scene.GetNode("Player/Sprite")
+    if err != nil {
+        panic(err)
+    }
+    
+    // access a field, keep in mind that TSCN files only store non default values
+    position := playerSpriteNode.Fields["position"]
+    fmt.Printf("Player/Sprite is at position %v\n", position)
 }
 ```
 

@@ -49,7 +49,7 @@ func (tscn *TscnFile) ConvertToGodotScene() (*godot.Scene, error) {
 		return nil, err
 	}
 
-	scene.RootNode = rootNode
+	scene.Node = rootNode
 
 	return &scene, nil
 }
