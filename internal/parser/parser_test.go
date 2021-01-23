@@ -258,5 +258,10 @@ func TestIntegrationParseFixtures(t *testing.T) {
 
 		_, err = Parse(f)
 		assert.NoError(t, err)
+
+		err = f.Close()
+		if err != nil {
+			panic(err)
+		}
 	}
 }
