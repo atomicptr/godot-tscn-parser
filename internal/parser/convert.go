@@ -41,7 +41,8 @@ func (tscn *TscnFile) ConvertToGodotScene() (*godot.Scene, error) {
 			continue
 		}
 
-		// TODO: support other things like "editable", "connection" etc.
+		// TODO: Add support for "editable" (attributes path)
+		// TODO: Add support for "connection" (attributes from, to, method, signal)
 	}
 
 	rootNode, err := buildNodeTree(tscn)
