@@ -149,11 +149,11 @@ func buildNodeTree(tscn *TscnFile) (*godot.Node, error) {
 				continue
 			}
 
-			// since we've removed the root sectionNode there shouldn't be another one without parentNodePath
+			// since we've removed the root sectionNode there shouldn't be another one without parent
 			parentAttribute, _ := sectionNode.GetAttribute("parent")
 			parentNodePath, ok := parentAttribute.Raw().(string)
 			if !ok {
-				return nil, fmt.Errorf("sectionNode attribute parent is not a string: %v", parentAttribute.Raw())
+				return nil, fmt.Errorf("section attribute parent is not a string: %v", parentAttribute.Raw())
 			}
 
 			parentNode, err := rootNode.GetNode(parentNodePath)
