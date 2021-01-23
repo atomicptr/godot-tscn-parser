@@ -142,6 +142,12 @@ func buildNodeTree(tscn *TscnFile) (*godot.Node, error) {
 	// a list of indices of nodes that have been processed
 	var processedNodes []int
 
+	// a counter to check how often we couldn't find the parent node
+	couldntFindParentNodeCounter := 0
+
+	// if that counter exceeds the threshold, we'll throw an error to stop execution
+	const couldntFindParentNodeCounterThreshold = 1000000
+
 	// while not all nodes have been processed
 	for len(otherNodes) != len(processedNodes) {
 		for index, sectionNode := range otherNodes {
@@ -158,6 +164,11 @@ func buildNodeTree(tscn *TscnFile) (*godot.Node, error) {
 
 			parentNode, err := rootNode.GetNode(parentNodePath)
 			if err != nil {
+				couldntFindParentNodeCounter += 1
+				if couldntFindParentNodeCounter >= couldntFindParentNodeCounterThreshold {
+					return nil, errors.New("can't build node tree, either its invalid or way too big (over a million nodes)")
+				}
+
 				// couldn't find parent node, continue for now...
 				continue
 			}
@@ -168,6 +179,8 @@ func buildNodeTree(tscn *TscnFile) (*godot.Node, error) {
 			}
 			parentNode.AddNode(node)
 			processedNodes = append(processedNodes, index)
+
+			couldntFindParentNodeCounter = 0
 		}
 	}
 
