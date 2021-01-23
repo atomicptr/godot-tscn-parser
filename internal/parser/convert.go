@@ -12,8 +12,6 @@ func (tscn *TscnFile) ConvertToGodotScene() (*godot.Scene, error) {
 	}
 
 	scene := godot.Scene{
-		// TODO: figure out what format actually does
-		Format:       2,
 		ExtResources: make(map[int64]*godot.ExtResource),
 		SubResources: make(map[int64]*godot.SubResource),
 		MetaData: godot.MetaData{
