@@ -238,7 +238,7 @@ func TestIntegrationParseFixtures(t *testing.T) {
 		panic(err)
 	}
 
-	files, err := filepath.Glob(filepath.Join(cwd, "fixtures", "*"))
+	files, err := filepath.Glob(filepath.Join(cwd, "../../test/fixtures", "*"))
 	if err != nil {
 		panic(err)
 	}

@@ -51,7 +51,7 @@ func main() {
 
 Please open an issue with your TSCN file.
 
-Or even better, open a pull request which adds the file to pkg/parser/fixtures.
+Or even better, open a pull request which adds the file to test/fixtures.
 
 ## License
 

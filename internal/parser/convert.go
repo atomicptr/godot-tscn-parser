@@ -124,6 +124,7 @@ func convertSectionToSubResource(section *GdResource) (*godot.SubResource, error
 	}
 
 	for _, field := range section.Fields {
+		// TODO: properly parse structures like bones/0/name = "Bone", bones/0/parent = -1, etc.
 		subResource.Fields[field.Key] = convertGdValue(field.Value)
 	}
 
