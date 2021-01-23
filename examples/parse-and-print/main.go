@@ -2,52 +2,82 @@ package main
 
 import (
 	"fmt"
+	"github.com/atomicptr/godot-tscn-parser/pkg/godot"
 	"github.com/atomicptr/godot-tscn-parser/pkg/tscn"
+	"os"
 )
 
+const filename = "./TestFile.tscn"
+
 func main() {
-	scene, err := tscn.LoadFileAndParse("./TestFile.tscn")
+	f, err := os.Open(filename)
+	if err != nil {
+		panic(err)
+	}
+	defer func() {
+		err := f.Close()
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	scene, err := tscn.ParseScene(f)
 	if err != nil {
 		panic(err)
 	}
 
-	if scene.Key != "" {
-		fmt.Println("File Descriptor Type:", scene.Key, "[", scene.Pos, "]")
-	}
+	fmt.Printf("# Godot Scene %s [%s]\n", filename, scene.LexerPosition)
 
-	if len(scene.Attributes) > 0 {
-		fmt.Println("Attributes:")
-
-		for _, attribute := range scene.Attributes {
-			fmt.Printf("\t%s = %s [%s]\n", attribute.Key, attribute.Value.ToString(), attribute.Pos)
+	if len(scene.ExtResources) > 0 {
+		fmt.Println("## ExtResources:")
+		for _, res := range scene.ExtResources {
+			fmt.Printf("\t%s (id=%d, path='%s') [%s]\n", res.Type, res.Id, res.Path, res.LexerPosition)
 		}
 	}
 
-	if len(scene.Fields) > 0 {
-		fmt.Println("Fields:")
-
-		for _, field := range scene.Fields {
-			fmt.Printf("\t%s = %s [%s]\n", field.Key, field.Value.ToString(), field.Pos)
+	if len(scene.SubResources) > 0 {
+		fmt.Println("## SubResources:")
+		for _, res := range scene.SubResources {
+			fmt.Printf("\t%s (id=%d) [%s]\n", res.Type, res.Id, res.LexerPosition)
 		}
 	}
 
-	for _, section := range scene.Sections {
-		fmt.Println("\nSection:", section.ResourceType, section.Pos)
+	if scene.RootNode != nil {
+		fmt.Println("## Node Tree:")
+		printNodes(scene.RootNode)
+	}
+}
 
-		if len(section.Attributes) > 0 {
-			fmt.Println("Attributes:")
+func printNodes(node *godot.Node) {
+	printNodesWithIndent(node, 0)
+}
 
-			for _, attr := range section.Attributes {
-				fmt.Printf("\t%s = %s [%s]\n", attr.Key, attr.Value.ToString(), attr.Pos)
-			}
-		}
+func printNodesWithIndent(node *godot.Node, indent int) {
+	nodeType := node.Type
+	if nodeType == "" {
+		nodeType = node.Instance
+	}
+	if nodeType == "" {
+		nodeType = "<None>"
+	}
 
-		if len(section.Fields) > 0 {
-			fmt.Println("Attributes:")
+	printIndent(indent)
+	fmt.Printf("%s (%s) [%s]:\n", node.Name, nodeType, node.MetaData.LexerPosition)
 
-			for _, field := range section.Fields {
-				fmt.Printf("\t%s = %s [%s]\n", field.Key, field.Value.ToString(), field.Pos)
-			}
-		}
+	for field, value := range node.Fields {
+		printIndent(indent + 1)
+		fmt.Printf("%s = %v\n", field, value)
+	}
+
+	for _, childNode := range node.Children {
+		printIndent(indent + 1)
+		fmt.Println("Children:")
+		printNodesWithIndent(childNode, indent+2)
+	}
+}
+
+func printIndent(indent int) {
+	for i := 0; i < indent; i++ {
+		fmt.Print("\t")
 	}
 }

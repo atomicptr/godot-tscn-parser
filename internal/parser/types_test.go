@@ -6,6 +6,48 @@ import (
 	"testing"
 )
 
+func TestTscnFileGetAttribute(t *testing.T) {
+	content := "[gd_scene value1=1234 value2=\"test\"]"
+	scene, err := Parse(strings.NewReader(content))
+	assert.NoError(t, err)
+	value1, err := scene.GetAttribute("value1")
+	assert.NoError(t, err)
+	assert.Equal(t, int64(1234), value1.Raw())
+	value2, err := scene.GetAttribute("value2")
+	assert.NoError(t, err)
+	assert.Equal(t, "test", value2.Raw())
+}
+
+func TestGdResourceGetAttribute(t *testing.T) {
+	content := `[gd_scene]
+[node value1=1234 value2="test"]`
+	scene, err := Parse(strings.NewReader(content))
+	assert.NoError(t, err)
+	node := scene.Sections[0]
+	value1, err := node.GetAttribute("value1")
+	assert.NoError(t, err)
+	assert.Equal(t, int64(1234), value1.Raw())
+	value2, err := node.GetAttribute("value2")
+	assert.NoError(t, err)
+	assert.Equal(t, "test", value2.Raw())
+}
+
+func TestGdResourceGetField(t *testing.T) {
+	content := `[gd_scene]
+[node attr=1234]
+value1=1234
+value2="test"`
+	scene, err := Parse(strings.NewReader(content))
+	assert.NoError(t, err)
+	node := scene.Sections[0]
+	value1, err := node.GetField("value1")
+	assert.NoError(t, err)
+	assert.Equal(t, int64(1234), value1.Raw())
+	value2, err := node.GetField("value2")
+	assert.NoError(t, err)
+	assert.Equal(t, "test", value2.Raw())
+}
+
 func TestGdMapFieldToString(t *testing.T) {
 	val := "value"
 	kv := GdMapField{

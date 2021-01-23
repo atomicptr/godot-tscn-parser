@@ -15,12 +15,42 @@ type TscnFile struct {
 	Pos        lexer.Position
 }
 
+// GetAttribute finds an attribute by name, returns error if not found
+func (tscn *TscnFile) GetAttribute(name string) (*GdValue, error) {
+	for _, attr := range tscn.Attributes {
+		if attr.Key == name {
+			return attr.Value, nil
+		}
+	}
+	return nil, fmt.Errorf("unknown attribute in %s: %s", tscn.Pos, name)
+}
+
 // GdResource represents a resource within a TSCN file
 type GdResource struct {
 	ResourceType string     `parser:"\"[\" @Ident "`
 	Attributes   []*GdField `parser:"@@* \"]\""`
 	Fields       []*GdField `parser:"@@*"`
 	Pos          lexer.Position
+}
+
+// GetAttribute finds an attribute by name, returns error if not found
+func (res *GdResource) GetAttribute(name string) (*GdValue, error) {
+	for _, attr := range res.Attributes {
+		if attr.Key == name {
+			return attr.Value, nil
+		}
+	}
+	return nil, fmt.Errorf("unknown attribute in %s: %s", res.Pos, name)
+}
+
+// GetField finds an attribute by name, returns error if not found
+func (res *GdResource) GetField(name string) (*GdValue, error) {
+	for _, field := range res.Fields {
+		if field.Key == name {
+			return field.Value, nil
+		}
+	}
+	return nil, fmt.Errorf("unknown field in %s: %s", res.Pos, name)
 }
 
 // GdType represents a type with values

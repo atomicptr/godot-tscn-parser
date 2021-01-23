@@ -6,14 +6,14 @@ import (
 )
 
 type Node struct {
-	Name                string
-	Type                string
-	InstanceExtResource *ExtResource
-	InstanceSubResource *SubResource
-	Groups              []string
-	Fields              map[string]interface{}
-	Children            map[string]*Node
-	Parent              *Node
+	Name     string
+	Type     string
+	Instance string
+	Groups   []string
+	Fields   map[string]interface{}
+	Children map[string]*Node
+	Parent   *Node
+	MetaData
 }
 
 func (n *Node) AddNode(node *Node) {
