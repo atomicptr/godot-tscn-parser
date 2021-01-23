@@ -8,8 +8,8 @@ import (
 
 // TscnFile represents a .tscn file
 type TscnFile struct {
-	Key        string        `parser:"(\"[\" @Ident"`
-	Attributes []*GdField    `parser:"@@* \"]\")?"`
+	Key        string        `parser:"('[' @Ident"`
+	Attributes []*GdField    `parser:"@@* ']')?"`
 	Fields     []*GdField    `parser:"@@*"`
 	Sections   []*GdResource `parser:"@@*"`
 	Pos        lexer.Position
@@ -27,8 +27,8 @@ func (tscn *TscnFile) GetAttribute(name string) (*GdValue, error) {
 
 // GdResource represents a resource within a TSCN file
 type GdResource struct {
-	ResourceType string     `parser:"\"[\" @Ident "`
-	Attributes   []*GdField `parser:"@@* \"]\""`
+	ResourceType string     `parser:"'[' @Ident "`
+	Attributes   []*GdField `parser:"@@* ']'"`
 	Fields       []*GdField `parser:"@@*"`
 	Pos          lexer.Position
 }
@@ -56,7 +56,7 @@ func (res *GdResource) GetField(name string) (*GdValue, error) {
 // GdType represents a type with values
 type GdType struct {
 	Key        string     `parser:" @Ident (\"(\""`
-	Parameters []*GdValue `parser:"@@ ( \",\" @@ )* \")\")?"`
+	Parameters []*GdValue `parser:"@@ ( ',' @@ )* \")\")?"`
 	Pos        lexer.Position
 }
 
@@ -81,21 +81,23 @@ func (kv *GdMapField) ToString() string {
 
 // GdValue represents a value
 type GdValue struct {
-	Map          []*GdMapField `parser:" \"{\" ( @@ ( \",\" @@ )* )? \"}\""`
+	IsEmptyMap   *bool         `parser:" (@'{' '}')"`
+	Map          []*GdMapField `parser:"| '{' ( @@ ( ',' @@ )* )? '}'"`
 	KeyValuePair *GdMapField   `parser:"| @@"`
-	Array        []*GdValue    `parser:"| \"[\" ( @@ ( \",\" @@ )* )? (\",\")? \"]\""`
+	IsEmptyArray *bool         `parser:"| (@'[' ']')"`
+	Array        []*GdValue    `parser:"| '[' ( @@ ( ',' @@ )* )? (',')? ']'"`
 	String       *string       `parser:"| @String"`
 	Integer      *int64        `parser:"| @Int"`
 	Float        *float64      `parser:"| @Float"`
-	Bool         *bool         `parser:"| (@\"true\" | \"false\")"`
-	Null         *bool         `parser:"| (@\"null\")"`
+	Bool         *bool         `parser:"| (@'true' | 'false')"`
+	Null         *bool         `parser:"| (@'null')"`
 	Type         *GdType       `parser:"| @@"`
 	Pos          lexer.Position
 }
 
 // Raw returns an interface{} which contains the actual value of the associated GdValue
 func (v *GdValue) Raw() interface{} {
-	if len(v.Map) != 0 {
+	if (v.IsEmptyMap != nil && *v.IsEmptyMap) || len(v.Map) != 0 {
 		return v.Map
 	}
 
@@ -103,7 +105,7 @@ func (v *GdValue) Raw() interface{} {
 		return *v.KeyValuePair
 	}
 
-	if len(v.Array) != 0 {
+	if (v.IsEmptyArray != nil && *v.IsEmptyArray) || len(v.Array) != 0 {
 		return v.Array
 	}
 
@@ -142,7 +144,7 @@ func (v *GdValue) ToString() string {
 		for _, kv := range value {
 			values = append(values, kv.ToString())
 		}
-		return fmt.Sprintf("Map {%s}", strings.Join(values, ", "))
+		return fmt.Sprintf("{%s}", strings.Join(values, ", "))
 	case GdMapField:
 		return value.ToString()
 	case []*GdValue:

@@ -142,6 +142,28 @@ func TestParseNodeWithGroups(t *testing.T) {
 	}
 }
 
+func TestParseWithEmptyArray(t *testing.T) {
+	scene, err := Parse(strings.NewReader("array = []"))
+	assert.NoError(t, err)
+	field := scene.Fields[0]
+
+	fieldAsArray, ok := field.Value.Raw().([]*GdValue)
+	assert.True(t, ok)
+	assert.Empty(t, fieldAsArray)
+	assert.Equal(t, "[]", field.Value.ToString())
+}
+
+func TestParseWithEmptyMap(t *testing.T) {
+	scene, err := Parse(strings.NewReader("map = {}"))
+	assert.NoError(t, err)
+	field := scene.Fields[0]
+
+	fieldAsArray, ok := field.Value.Raw().([]*GdMapField)
+	assert.True(t, ok)
+	assert.Empty(t, fieldAsArray)
+	assert.Equal(t, "{}", field.Value.ToString())
+}
+
 func TestFieldDescriptorWithoutArguments(t *testing.T) {
 	content := `[gd_scene]`
 	scene, err := Parse(strings.NewReader(content))

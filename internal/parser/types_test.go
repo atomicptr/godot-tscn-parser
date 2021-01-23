@@ -139,7 +139,7 @@ func TestGdValueToStringWithMap(t *testing.T) {
 		{Key: "key2", Value: &GdValue{String: &val2}},
 	}}
 
-	assert.Equal(t, `Map {"key1": "value1", "key2": "value2"}`, m.ToString())
+	assert.Equal(t, `{"key1": "value1", "key2": "value2"}`, m.ToString())
 }
 
 func TestGdValueToStringWithKeyValuePair(t *testing.T) {

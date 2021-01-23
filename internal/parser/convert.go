@@ -234,7 +234,7 @@ func convertSectionToUnattachedNode(section *GdResource) (*godot.Node, error) {
 	}
 
 	for _, field := range section.Fields {
-		node.Fields[field.Key] = convertGdValue(field.Value)
+		node.Fields[field.Key] = field.Value.ToString() //convertGdValue(field.Value)
 	}
 
 	return &node, nil
