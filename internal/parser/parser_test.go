@@ -107,6 +107,41 @@ func TestParseFieldWithoutFileDescriptor(t *testing.T) {
 	assert.Equal(t, "Yes this works!", *scene.Fields[0].Value.String)
 }
 
+func TestParseNodeWithGroups(t *testing.T) {
+	content := `[gd_scene]
+[node name="Root" type="Spatial"]
+
+[node name="Spatial" type="Spatial" parent="." groups=[
+"test1",
+"test2",
+"test3",
+]]`
+	scene, err := Parse(strings.NewReader(content))
+	assert.NoError(t, err)
+
+	spatial := scene.Sections[1]
+
+	groupsFound := false
+	for _, attrib := range spatial.Attributes {
+		if attrib.Key != "groups" {
+			continue
+		}
+
+		groupsFound = true
+
+		assert.NotNil(t, attrib.Value.Array)
+		groups := attrib.Value.Array
+		assert.Len(t, groups, 3)
+		assert.Equal(t, "test1", *groups[0].String)
+		assert.Equal(t, "test2", *groups[1].String)
+		assert.Equal(t, "test3", *groups[2].String)
+	}
+
+	if !groupsFound {
+		assert.Fail(t, "Could not find attribute groups")
+	}
+}
+
 func TestFieldDescriptorWithoutArguments(t *testing.T) {
 	content := `[gd_scene]`
 	scene, err := Parse(strings.NewReader(content))

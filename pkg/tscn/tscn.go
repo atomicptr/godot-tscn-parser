@@ -2,7 +2,7 @@
 package tscn
 
 import (
-	"github.com/atomicptr/godot-tscn-parser/pkg/parser"
+	"github.com/atomicptr/godot-tscn-parser/internal/parser"
 	"io"
 	"os"
 	"path/filepath"
