@@ -76,7 +76,7 @@ func printNodes(node *godot.Node) {
 func printNodesWithIndent(node *godot.Node, indent int) {
 	nodeType := node.Type
 	if nodeType == "" {
-		nodeType = node.Instance
+		nodeType = fmt.Sprintf("%v", node.Instance)
 	}
 	if nodeType == "" {
 		nodeType = "<None>"

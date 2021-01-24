@@ -8,7 +8,7 @@ import (
 type Node struct {
 	Name     string
 	Type     string
-	Instance string
+	Instance Type
 	Groups   []string
 	Fields   map[string]interface{}
 	Children map[string]*Node

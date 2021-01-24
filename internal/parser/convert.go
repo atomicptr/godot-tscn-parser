@@ -268,11 +268,7 @@ func attachTypeToNode(node *godot.Node, section *GdResource) error {
 			return fmt.Errorf("node instance parameter does not contain a valid reference %v", instance.Raw())
 		}
 
-		node.Instance = fmt.Sprintf(
-			"%s:%d",
-			instance.Type.Key,
-			*instance.Type.Parameters[0].Integer,
-		)
+		node.Instance = convertGdValue(instance).(godot.Type)
 		return nil
 	}
 
