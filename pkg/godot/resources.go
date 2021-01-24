@@ -14,6 +14,6 @@ type ExtResource struct {
 type SubResource struct {
 	Type   string
 	Id     int64
-	Fields map[string]Value
+	Fields map[string]interface{}
 	MetaData
 }

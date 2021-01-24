@@ -11,6 +11,10 @@ type Scene struct {
 	SubResources map[int64]*SubResource
 	// Node is the root node of the scene tree
 	*Node
+	// Editables is a list of editable scenes
+	Editables []*Editable
+	// Connections is a list of event triggers and to which nodes they're connected to
+	Connections []*Connection
 	// MetaData contains extra data like the lexer position
 	MetaData
 }

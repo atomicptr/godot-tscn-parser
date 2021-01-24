@@ -46,6 +46,27 @@ func main() {
 		fmt.Println("## Node Tree:")
 		printNodes(scene.Node)
 	}
+
+	if len(scene.Editables) > 0 {
+		fmt.Println("## Editables:")
+		for _, editable := range scene.Editables {
+			fmt.Printf("\t%s [%s]\n", editable.Path, editable.LexerPosition)
+		}
+	}
+
+	if len(scene.Connections) > 0 {
+		fmt.Println("## Connections:")
+		for _, conn := range scene.Connections {
+			fmt.Printf(
+				"\tFrom: %s, To: %s, Method: %s, Signal: %s [%s]\n",
+				conn.From,
+				conn.To,
+				conn.Method,
+				conn.Signal,
+				conn.LexerPosition,
+			)
+		}
+	}
 }
 
 func printNodes(node *godot.Node) {

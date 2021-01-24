@@ -41,8 +41,25 @@ func (tscn *TscnFile) ConvertToGodotScene() (*godot.Scene, error) {
 			continue
 		}
 
-		// TODO: Add support for "editable" (attributes path)
-		// TODO: Add support for "connection" (attributes from, to, method, signal)
+		// editable scenes
+		if section.ResourceType == "editable" {
+			editable, err := convertSectionToEditable(section)
+			if err != nil {
+				return nil, err
+			}
+			scene.Editables = append(scene.Editables, editable)
+			continue
+		}
+
+		// connections
+		if section.ResourceType == "connection" {
+			connection, err := convertSectionToConnection(section)
+			if err != nil {
+				return nil, err
+			}
+			scene.Connections = append(scene.Connections, connection)
+			continue
+		}
 	}
 
 	rootNode, err := buildNodeTree(tscn)
@@ -234,7 +251,7 @@ func convertSectionToUnattachedNode(section *GdResource) (*godot.Node, error) {
 	}
 
 	for _, field := range section.Fields {
-		node.Fields[field.Key] = field.Value.ToString() //convertGdValue(field.Value)
+		node.Fields[field.Key] = convertGdValue(field.Value)
 	}
 
 	return &node, nil
@@ -263,7 +280,123 @@ func attachTypeToNode(node *godot.Node, section *GdResource) error {
 	return nil
 }
 
-func convertGdValue(val *GdValue) godot.Value {
-	// TODO: handle special values like maps, array and parse them properly if necessary (Vectors, Transforms etc)
-	return val
+func convertSectionToEditable(section *GdResource) (*godot.Editable, error) {
+	if section.ResourceType != "editable" {
+		return nil, fmt.Errorf("you can't convert a %s to editable", section.ResourceType)
+	}
+
+	path, err := section.GetAttribute("path")
+	if err != nil {
+		return nil, errors.Wrap(err, "editable without path")
+	}
+
+	editable := godot.Editable{
+		Path: *path.String,
+		MetaData: godot.MetaData{
+			LexerPosition: section.Pos,
+		},
+	}
+
+	return &editable, nil
+}
+
+func convertSectionToConnection(section *GdResource) (*godot.Connection, error) {
+	if section.ResourceType != "connection" {
+		return nil, fmt.Errorf("you can't convert a %s to connection", section.ResourceType)
+	}
+
+	from, err := section.GetAttribute("from")
+	if err != nil {
+		return nil, errors.Wrap(err, "editable without from")
+	}
+
+	to, err := section.GetAttribute("to")
+	if err != nil {
+		return nil, errors.Wrap(err, "editable without to")
+	}
+
+	signal, err := section.GetAttribute("signal")
+	if err != nil {
+		return nil, errors.Wrap(err, "editable without signal")
+	}
+
+	method, err := section.GetAttribute("method")
+	if err != nil {
+		return nil, errors.Wrap(err, "editable without method")
+	}
+
+	conn := godot.Connection{
+		From:   *from.String,
+		To:     *to.String,
+		Signal: *signal.String,
+		Method: *method.String,
+		MetaData: godot.MetaData{
+			LexerPosition: section.Pos,
+		},
+	}
+
+	if flags, err := section.GetAttribute("flags"); err == nil {
+		conn.Flags = *flags.Integer
+	}
+
+	if binds, err := section.GetAttribute("binds"); err == nil {
+		bindsArray := convertGdValue(binds).([]interface{})
+		conn.Binds = bindsArray
+	}
+
+	return &conn, nil
+}
+
+func convertGdValue(val *GdValue) interface{} {
+	switch value := val.Raw().(type) {
+	case []*GdValue:
+		values := make([]interface{}, len(value))
+		for index, v := range value {
+			values[index] = v
+		}
+		return godot.Value{
+			Value: values,
+			MetaData: godot.MetaData{
+				LexerPosition: val.Pos,
+			},
+		}
+	case []*GdMapField:
+		m := make(map[string]interface{})
+		for _, kv := range value {
+			m[kv.Key] = convertGdValue(kv.Value)
+		}
+		return godot.Value{
+			Value: m,
+			MetaData: godot.MetaData{
+				LexerPosition: val.Pos,
+			},
+		}
+	case GdType:
+		params := make([]interface{}, len(value.Parameters))
+		for index, p := range value.Parameters {
+			params[index] = convertGdValue(p)
+		}
+		return godot.Type{
+			Identifier: value.Key,
+			Parameters: params,
+			MetaData: godot.MetaData{
+				LexerPosition: value.Pos,
+			},
+		}
+	case GdMapField:
+		return godot.KeyValuePair{
+			Key:   value.Key,
+			Value: convertGdValue(value.Value),
+			MetaData: godot.MetaData{
+				LexerPosition: value.Pos,
+			},
+		}
+	default:
+		return godot.Value{
+			Value: value,
+			MetaData: godot.MetaData{
+				LexerPosition: val.Pos,
+			},
+		}
+	}
 }
