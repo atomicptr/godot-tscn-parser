@@ -2,6 +2,8 @@ package parser
 
 import (
 	"fmt"
+	"sort"
+	"strings"
 
 	"github.com/pkg/errors"
 
@@ -9,7 +11,11 @@ import (
 )
 
 const (
-	tscnTypeGodotScene      = "gd_scene"
+	// TscnTypeGodotScene is the identifier for a Godot Scene
+	TscnTypeGodotScene = "gd_scene"
+)
+
+const (
 	resourceTypeExtResource = "ext_resource"
 	resourceTypeSubResource = "sub_resource"
 	resourceTypeEditable    = "editable"
@@ -17,13 +23,23 @@ const (
 	resourceTypeNode        = "node"
 )
 
+const (
+	internalNodeUnassignableNodes = "__Internal_UnassignableNodes"
+	internalNodeType              = "__Internal"
+	internalNodeParentPathField   = "__Internal_ParentPath"
+)
+
+const (
+	volatileNodeType = "VolatileNode"
+)
+
 // ConvertToGodotScene tries to convert a TscnFile structure to an actual Godot Scene with a node tree
 func (tscn *TscnFile) ConvertToGodotScene() (*godot.Scene, error) {
-	if tscn.Key != tscnTypeGodotScene {
+	if tscn.Key != TscnTypeGodotScene {
 		return nil, fmt.Errorf("can't convert %s to gd_scene", tscn.Key)
 	}
 
-	scene := godot.Scene{
+	scene := &godot.Scene{
 		ExtResources: make(map[int64]*godot.ExtResource),
 		SubResources: make(map[int64]*godot.SubResource),
 		MetaData: godot.MetaData{
@@ -89,7 +105,120 @@ func (tscn *TscnFile) ConvertToGodotScene() (*godot.Scene, error) {
 
 	scene.Node = rootNode
 
-	return &scene, nil
+	err = postProcessAndCleanSceneFromInternals(scene)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: add validator and validate scene
+	return scene, nil
+}
+
+func postProcessAndCleanSceneFromInternals(scene *godot.Scene) error {
+	err := createVolatileNodes(scene)
+	if err != nil {
+		return err
+	}
+
+	unassignableNodes, err := scene.GetNode(internalNodeUnassignableNodes)
+	if err != nil {
+		return err
+	}
+
+	if len(unassignableNodes.Children) > 0 {
+		return fmt.Errorf("node tree contains an invalid tree")
+	}
+
+	err = scene.RemoveNode(internalNodeUnassignableNodes)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func createVolatileNodes(scene *godot.Scene) error {
+	unassignableNodes, err := scene.GetNode(internalNodeUnassignableNodes)
+	if err != nil {
+		return err
+	}
+
+	var nodesToBeDeleted []string
+
+	// convert map into slice
+	children := convertNodeMapIntoSortedSlice(unassignableNodes.Children)
+
+	// create the volatile node structure
+	for _, node := range children {
+		nodeIdent := node.Name
+		parentPath, ok := node.Fields[internalNodeParentPathField]
+		if !ok {
+			continue
+		}
+
+		p := parentPath.(string)
+		for _, editable := range scene.Editables {
+			// doesn't match the editable, ignore
+			if !strings.HasPrefix(p, editable.Path) {
+				continue
+			}
+
+			// for every path segment check if a child node exists with the given name
+			parts := strings.Split(p, "/")
+			parentNode := scene.Node
+			for _, pathPart := range parts {
+				// parent node has the path part? Dig deeper
+				if n, ok := parentNode.Children[pathPart]; ok {
+					parentNode = n
+					continue
+				}
+
+				// if not, create a volatile node here
+				volatileNode := &godot.Node{
+					Name:     pathPart,
+					Type:     volatileNodeType,
+					Children: make(map[string]*godot.Node),
+				}
+				parentNode.AddNode(volatileNode)
+				parentNode = volatileNode
+			}
+		}
+
+		// try to add the un-assignable node into the tree
+		parentNode, err := scene.GetNode(p)
+		if err != nil {
+			return err
+		}
+		parentNode.AddNode(node)
+		delete(node.Fields, internalNodeParentPathField)
+		nodesToBeDeleted = append(nodesToBeDeleted, nodeIdent)
+	}
+
+	for _, nodeIdent := range nodesToBeDeleted {
+		delete(unassignableNodes.Children, nodeIdent)
+	}
+
+	return nil
+}
+
+func convertNodeMapIntoSortedSlice(nodeMap map[string]*godot.Node) []*godot.Node {
+	var children []*godot.Node
+	for _, node := range nodeMap {
+		children = append(children, node)
+	}
+
+	parentPathLen := func(n *godot.Node) int {
+		path := n.Fields[internalNodeParentPathField]
+		p := path.(string)
+		parts := strings.Split(p, "/")
+		return len(parts)
+	}
+
+	sort.SliceStable(children, func(i, j int) bool {
+		return parentPathLen(children[i]) < parentPathLen(children[j])
+	})
+
+	return children
 }
 
 func convertSectionToExtResource(section *GdResource) (*godot.ExtResource, error) {
@@ -177,14 +306,33 @@ func buildNodeTree(tscn *TscnFile) (*godot.Node, error) {
 		return nil, errors.Wrap(err, "could not determine root node")
 	}
 
+	// add a node to allow us to gather un-assignable nodes, they might have volatile ancestors
+	unassignableNodeList := &godot.Node{
+		Name:     internalNodeUnassignableNodes,
+		Type:     internalNodeType,
+		Fields:   make(map[string]interface{}),
+		Children: make(map[string]*godot.Node),
+	}
+	rootNode.AddNode(unassignableNodeList)
+
 	// a list of indices of nodes that have been processed
 	var processedNodes []int
 
 	// a counter to check how often we couldn't find the parent node
 	couldntFindParentNodeCounter := 0
 
-	// if that counter exceeds the threshold, we'll throw an error to stop execution
+	// if that counter exceeds the threshold, we'll add it to the un-assignable nodes list
 	const couldntFindParentNodeCounterThreshold = 1000000
+
+	parseAndAddNode := func(parent *godot.Node, section *GdResource, index int) (*godot.Node, error) {
+		node, err := convertSectionToUnattachedNode(section)
+		if err != nil {
+			return nil, errors.Wrap(err, "could not parse node")
+		}
+		parent.AddNode(node)
+		processedNodes = append(processedNodes, index)
+		return node, nil
+	}
 
 	// while not all nodes have been processed
 	for len(otherNodes) != len(processedNodes) {
@@ -204,19 +352,23 @@ func buildNodeTree(tscn *TscnFile) (*godot.Node, error) {
 			if err != nil {
 				couldntFindParentNodeCounter++
 				if couldntFindParentNodeCounter >= couldntFindParentNodeCounterThreshold {
-					return nil, errors.New("can't build node tree, either its invalid or way too big (over a million nodes)")
+					node, err := parseAndAddNode(unassignableNodeList, sectionNode, index)
+					if err != nil {
+						return nil, err
+					}
+					node.Fields[internalNodeParentPathField] = parentNodePath
+					couldntFindParentNodeCounter = 0
+					continue
 				}
 
 				// couldn't find parent node, continue for now...
 				continue
 			}
 
-			node, err := convertSectionToUnattachedNode(sectionNode)
+			_, err = parseAndAddNode(parentNode, sectionNode, index)
 			if err != nil {
-				return nil, errors.Wrap(err, "could not parse node")
+				return nil, err
 			}
-			parentNode.AddNode(node)
-			processedNodes = append(processedNodes, index)
 
 			couldntFindParentNodeCounter = 0
 		}

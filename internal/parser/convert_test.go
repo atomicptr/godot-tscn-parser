@@ -252,8 +252,13 @@ func TestBuildNodeTreeWithInvalidTree(t *testing.T) {
 	tscnFile, err := Parse(strings.NewReader(content))
 	assert.NoError(t, err)
 
-	_, err = buildNodeTree(tscnFile)
-	assert.Error(t, err)
+	tree, err := buildNodeTree(tscnFile)
+	assert.NoError(t, err)
+
+	unassignableNodes, err := tree.GetNode(internalNodeUnassignableNodes)
+	assert.NoError(t, err)
+
+	assert.NotEmpty(t, unassignableNodes.Children, "tree should contain nodes that we can't assign")
 }
 
 func TestBuildNodeTreeWithInvalidParentParameter(t *testing.T) {
@@ -278,22 +283,53 @@ func TestBuildNodeTreeWithInvalidChildNode(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestRegressionBuildNodeTreeWithEditableNodeWithMissingChildren(t *testing.T) {
+func TestRegressionConvertToGdSceneWithEditableNodeWithMissingChildren(t *testing.T) {
 	content := `[gd_scene]
-[ext_resource path="res://TestNode.tscn" id=3]
+[ext_resource path="res://TestNode.tscn" type="PackedScene" id=3]
 [node name="Root" type="Node2D"]
-[node name="EditableNode" instance=ExtResource(3)]
+[node name="EditableNode" parent="." instance=ExtResource(3)]
 [node name="ChildNodeWeAreOverwriting" parent="EditableNode/A/B/C/D"]
 position = Vector2(13, 37)
 [editable path="EditableNode"]`
 	tscnFile, err := Parse(strings.NewReader(content))
 	assert.NoError(t, err)
 
-	tree, err := buildNodeTree(tscnFile)
+	scene, err := tscnFile.ConvertToGodotScene()
 	assert.NoError(t, err)
 
-	node, err := tree.GetNode("EditableNode/A/B/C/D/ChildNodeWeAreOverwriting")
+	node, err := scene.GetNode("EditableNode/A/B/C/D/ChildNodeWeAreOverwriting")
 	assert.NoError(t, err)
+
+	if err != nil {
+		return
+	}
+
+	assert.Equal(t, "ChildNodeWeAreOverwriting", node.Name)
+	assert.Len(t, node.Fields, 1)
+}
+
+func TestRegressionConvertToGdSceneWithEditableNodeWithMissingChildrenAndASlightlyComplexerSetup(t *testing.T) {
+	content := `[gd_scene]
+[ext_resource path="res://TestNode.tscn" type="PackedScene" id=3]
+[node name="Root" type="Node2D"]
+[node name="EditableNode" parent="." instance=ExtResource(3)]
+[node name="CouldThisWork" parent="EditableNode/A/B"]
+position = Vector2(42, 0)
+[node name="ChildNodeWeAreOverwriting" parent="EditableNode/A/B/CouldThisWork/D"]
+position = Vector2(13, 37)
+[editable path="EditableNode"]`
+	tscnFile, err := Parse(strings.NewReader(content))
+	assert.NoError(t, err)
+
+	scene, err := tscnFile.ConvertToGodotScene()
+	assert.NoError(t, err)
+
+	node, err := scene.GetNode("EditableNode/A/B/CouldThisWork/D/ChildNodeWeAreOverwriting")
+	assert.NoError(t, err)
+
+	if err != nil {
+		return
+	}
 
 	assert.Equal(t, "ChildNodeWeAreOverwriting", node.Name)
 	assert.Len(t, node.Fields, 1)
@@ -329,7 +365,7 @@ func TestIntegrationConvertToGodotSceneFixtures(t *testing.T) {
 			continue
 		}
 
-		if tscnFile.Key == "gd_scene" {
+		if tscnFile.Key == TscnTypeGodotScene {
 			_, err = tscnFile.ConvertToGodotScene()
 			assert.NoError(t, errors.Wrapf(err, "error with fixture: '%s'", file))
 		}

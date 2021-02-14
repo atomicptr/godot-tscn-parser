@@ -90,10 +90,13 @@ func printNodesWithIndent(node *godot.Node, indent int) {
 		fmt.Printf("%s = %v\n", field, value)
 	}
 
-	for _, childNode := range node.Children {
+	if len(node.Children) > 0 {
 		printIndent(indent + 1)
 		fmt.Println("Children:")
-		printNodesWithIndent(childNode, indent+2)
+
+		for _, childNode := range node.Children {
+			printNodesWithIndent(childNode, indent+2)
+		}
 	}
 }
 
