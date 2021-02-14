@@ -1,5 +1,6 @@
 package godot
 
+// Project is a data model for your project.godot files
 type Project struct {
 	Android     map[string]interface{}
 	Audio       map[string]interface{}

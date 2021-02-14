@@ -2,7 +2,7 @@ package parser
 
 import "github.com/atomicptr/godot-tscn-parser/pkg/godot"
 
-// ConvertToGodotScene tries to convert a TscnFile structure to an actual Godot Scene with a node tree
+// ConvertToGodotProject tries to convert a TscnFile structure to a godot.Project
 func (tscn *TscnFile) ConvertToGodotProject() (*godot.Project, error) {
 	project := &godot.Project{
 		Android:     make(map[string]interface{}),

@@ -1,10 +1,12 @@
 package parser
 
 import (
-	"github.com/atomicptr/godot-tscn-parser/pkg/godot"
-	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/atomicptr/godot-tscn-parser/pkg/godot"
 )
 
 func TestConvertToGodotProject(t *testing.T) {
