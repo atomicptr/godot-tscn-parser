@@ -1,9 +1,11 @@
 package godot
 
 // FormatVersion defines the version of the TSCN file format
-// Snippet from the C++ code: https://github.com/godotengine/godot/blob/master/scene/resources/resource_format_text.cpp#L39
+// Snippet from the C++ code:
+//   https://github.com/godotengine/godot/blob/master/scene/resources/resource_format_text.cpp#L39
 const FormatVersion = 2
 
+// Scene is the data representation of a Godot TSCN Scene, which contains resources and a node tree
 type Scene struct {
 	// ExtResources is a map of external resources, key is their ID
 	ExtResources map[int64]*ExtResource

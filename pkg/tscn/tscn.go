@@ -2,10 +2,12 @@
 package tscn
 
 import (
+	"io"
+
+	"github.com/pkg/errors"
+
 	"github.com/atomicptr/godot-tscn-parser/internal/parser"
 	"github.com/atomicptr/godot-tscn-parser/pkg/godot"
-	"github.com/pkg/errors"
-	"io"
 )
 
 // ParseScene parses a TSCN file of the type gd_scene

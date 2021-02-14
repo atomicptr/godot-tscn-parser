@@ -1,9 +1,10 @@
 package parser
 
 import (
-	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestTscnFileGetAttribute(t *testing.T) {
@@ -20,20 +21,26 @@ func TestTscnFileGetAttribute(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestGdResourceGetAttribute(t *testing.T) {
-	content := `[gd_scene]
-[node value1=1234 value2="test"]`
+func testGdResourceWithMethod(t *testing.T, content string, f func(node *GdResource, name string) (*GdValue, error)) {
 	scene, err := Parse(strings.NewReader(content))
 	assert.NoError(t, err)
 	node := scene.Sections[0]
-	value1, err := node.GetAttribute("value1")
+	value1, err := f(node, "value1")
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1234), value1.Raw())
-	value2, err := node.GetAttribute("value2")
+	value2, err := f(node, "value2")
 	assert.NoError(t, err)
 	assert.Equal(t, "test", value2.Raw())
-	_, err = node.GetAttribute("value3")
+	_, err = f(node, "value3")
 	assert.Error(t, err)
+}
+
+func TestGdResourceGetAttribute(t *testing.T) {
+	content := `[gd_scene]
+[node value1=1234 value2="test"]`
+	testGdResourceWithMethod(t, content, func(node *GdResource, name string) (*GdValue, error) {
+		return node.GetAttribute(name)
+	})
 }
 
 func TestGdResourceGetField(t *testing.T) {
@@ -41,17 +48,9 @@ func TestGdResourceGetField(t *testing.T) {
 [node attr=1234]
 value1=1234
 value2="test"`
-	scene, err := Parse(strings.NewReader(content))
-	assert.NoError(t, err)
-	node := scene.Sections[0]
-	value1, err := node.GetField("value1")
-	assert.NoError(t, err)
-	assert.Equal(t, int64(1234), value1.Raw())
-	value2, err := node.GetField("value2")
-	assert.NoError(t, err)
-	assert.Equal(t, "test", value2.Raw())
-	_, err = node.GetField("value3")
-	assert.Error(t, err)
+	testGdResourceWithMethod(t, content, func(node *GdResource, name string) (*GdValue, error) {
+		return node.GetField(name)
+	})
 }
 
 func TestGdMapFieldToString(t *testing.T) {

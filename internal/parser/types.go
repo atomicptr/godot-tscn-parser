@@ -2,8 +2,9 @@ package parser
 
 import (
 	"fmt"
-	"github.com/alecthomas/participle/v2/lexer"
 	"strings"
+
+	"github.com/alecthomas/participle/v2/lexer"
 )
 
 // TscnFile represents a .tscn file

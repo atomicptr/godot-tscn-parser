@@ -2,9 +2,10 @@
 package parser
 
 import (
+	"io"
+
 	"github.com/alecthomas/participle/v2"
 	"github.com/alecthomas/participle/v2/lexer/stateful"
-	"io"
 )
 
 var tscnLexer = stateful.MustSimple([]stateful.Rule{

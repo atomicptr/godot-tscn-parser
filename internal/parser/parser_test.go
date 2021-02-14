@@ -2,12 +2,13 @@ package parser
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/pkg/errors"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestParseFail(t *testing.T) {
@@ -261,7 +262,7 @@ func TestIntegrationParseFixtures(t *testing.T) {
 		panic(err)
 	}
 
-	files, err := filepath.Glob(filepath.Join(cwd, "../../test/fixtures", "*"))
+	files, err := filepath.Glob(filepath.Join(cwd, "..", "..", "test", "fixtures", "*"))
 	if err != nil {
 		panic(err)
 	}

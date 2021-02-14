@@ -1,12 +1,13 @@
 package parser
 
 import (
-	"github.com/pkg/errors"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/pkg/errors"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestConvertToGodotScene(t *testing.T) {
@@ -115,13 +116,18 @@ func TestConvertToGodotSceneWithInvalidNodeTree(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func testErrorWithConvertSection(t *testing.T, content string, convertFunc func(s *GdResource) (interface{}, error), error bool) {
+func testErrorWithConvertSection(
+	t *testing.T,
+	content string,
+	convertFunc func(s *GdResource) (interface{}, error),
+	isError bool,
+) {
 	tscnFile, err := Parse(strings.NewReader(content))
 	assert.NoError(t, err)
 
 	section := tscnFile.Sections[0]
 	_, err = convertFunc(section)
-	if error {
+	if isError {
 		assert.Error(t, err)
 	} else {
 		assert.NoError(t, err)
@@ -132,90 +138,111 @@ func TestConvertSectionToExtResource(t *testing.T) {
 	testConvertFunc := func(s *GdResource) (interface{}, error) {
 		return convertSectionToExtResource(s)
 	}
-	assumeError := func(t *testing.T, content string) {
-		testErrorWithConvertSection(t, content, testConvertFunc, true)
-	}
-	assumeNoError := func(t *testing.T, content string) {
-		testErrorWithConvertSection(t, content, testConvertFunc, false)
+
+	table := []struct {
+		convertFunc func(s *GdResource) (interface{}, error)
+		isError     bool
+		content     string
+	}{
+		{testConvertFunc, true, `[gd_scene] [sub_resource]`},
+		{testConvertFunc, true, `[gd_scene] [ext_resource]`},
+		{testConvertFunc, true, `[gd_scene] [ext_resource path="res://Test.tscn"]`},
+		{testConvertFunc, true, `[gd_scene] [ext_resource path="res://Test.tscn" type="PackedScene"]`},
+		{testConvertFunc, false, `[gd_scene] [ext_resource path="res://Test.tscn" type="PackedScene" id=1]`},
 	}
 
-	assumeError(t, `[gd_scene] [sub_resource]`)
-	assumeError(t, `[gd_scene] [ext_resource]`)
-	assumeError(t, `[gd_scene] [ext_resource path="res://Test.tscn"]`)
-	assumeError(t, `[gd_scene] [ext_resource path="res://Test.tscn" type="PackedScene"]`)
-	assumeNoError(t, `[gd_scene] [ext_resource path="res://Test.tscn" type="PackedScene" id=1]`)
+	for _, tc := range table {
+		testErrorWithConvertSection(t, tc.content, tc.convertFunc, tc.isError)
+	}
 }
 
 func TestConvertSectionToSubResource(t *testing.T) {
 	testConvertFunc := func(s *GdResource) (interface{}, error) {
 		return convertSectionToSubResource(s)
 	}
-	assumeError := func(t *testing.T, content string) {
-		testErrorWithConvertSection(t, content, testConvertFunc, true)
-	}
-	assumeNoError := func(t *testing.T, content string) {
-		testErrorWithConvertSection(t, content, testConvertFunc, false)
+
+	table := []struct {
+		convertFunc func(s *GdResource) (interface{}, error)
+		isError     bool
+		content     string
+	}{
+		{testConvertFunc, true, `[gd_scene] [ext_resource]`},
+		{testConvertFunc, true, `[gd_scene] [sub_resource]`},
+		{testConvertFunc, true, `[gd_scene] [sub_resource type="TileSet"]`},
+		{testConvertFunc, false, `[gd_scene] [sub_resource type="TileSet" id=2]`},
 	}
 
-	assumeError(t, `[gd_scene] [ext_resource]`)
-	assumeError(t, `[gd_scene] [sub_resource]`)
-	assumeError(t, `[gd_scene] [sub_resource type="TileSet"]`)
-	assumeNoError(t, `[gd_scene] [sub_resource type="TileSet" id=2]`)
+	for _, tc := range table {
+		testErrorWithConvertSection(t, tc.content, tc.convertFunc, tc.isError)
+	}
 }
 
 func TestConvertSectionToEditable(t *testing.T) {
 	testConvertFunc := func(s *GdResource) (interface{}, error) {
 		return convertSectionToEditable(s)
 	}
-	assumeError := func(t *testing.T, content string) {
-		testErrorWithConvertSection(t, content, testConvertFunc, true)
-	}
-	assumeNoError := func(t *testing.T, content string) {
-		testErrorWithConvertSection(t, content, testConvertFunc, false)
+
+	table := []struct {
+		convertFunc func(s *GdResource) (interface{}, error)
+		isError     bool
+		content     string
+	}{
+		{testConvertFunc, true, `[gd_scene] [ext_resource]`},
+		{testConvertFunc, true, `[gd_scene] [editable]`},
+		{testConvertFunc, false, `[gd_scene] [editable path="TestNode"]`},
 	}
 
-	assumeError(t, `[gd_scene] [ext_resource]`)
-	assumeError(t, `[gd_scene] [editable]`)
-	assumeNoError(t, `[gd_scene] [editable path="TestNode"]`)
+	for _, tc := range table {
+		testErrorWithConvertSection(t, tc.content, tc.convertFunc, tc.isError)
+	}
 }
 
 func TestConvertSectionToConnection(t *testing.T) {
 	testConvertFunc := func(s *GdResource) (interface{}, error) {
 		return convertSectionToConnection(s)
 	}
-	assumeError := func(t *testing.T, content string) {
-		testErrorWithConvertSection(t, content, testConvertFunc, true)
-	}
-	assumeNoError := func(t *testing.T, content string) {
-		testErrorWithConvertSection(t, content, testConvertFunc, false)
+
+	table := []struct {
+		convertFunc func(s *GdResource) (interface{}, error)
+		isError     bool
+		content     string
+	}{
+		{testConvertFunc, true, `[gd_scene] [ext_resource]`},
+		{testConvertFunc, true, `[gd_scene] [connection]`},
+		{testConvertFunc, true, `[gd_scene] [connection from="."]`},
+		{testConvertFunc, true, `[gd_scene] [connection from="." to="."]`},
+		{testConvertFunc, true, `[gd_scene] [connection from="." to="." signal="connect"]`},
+		{testConvertFunc, false, `[gd_scene] [connection from="." to="." signal="connect" method="OnSignalConnect"]`},
+		{testConvertFunc, false, `[gd_scene] [connection from="." to="." signal="connect" method="OnSignalConnect" flags=7]`},
+		{testConvertFunc, false, `[gd_scene]
+[connection from="." to="." signal="connect" method="OnSignalConnect" flags=7 binds=["Test", Vector3(1, 2, 3)]]`},
 	}
 
-	assumeError(t, `[gd_scene] [ext_resource]`)
-	assumeError(t, `[gd_scene] [connection]`)
-	assumeError(t, `[gd_scene] [connection from="."]`)
-	assumeError(t, `[gd_scene] [connection from="." to="."]`)
-	assumeError(t, `[gd_scene] [connection from="." to="." signal="connect"]`)
-	assumeNoError(t, `[gd_scene] [connection from="." to="." signal="connect" method="OnSignalConnect"]`)
-	assumeNoError(t, `[gd_scene] [connection from="." to="." signal="connect" method="OnSignalConnect" flags=7]`)
-	assumeNoError(t, `[gd_scene] [connection from="." to="." signal="connect" method="OnSignalConnect" flags=7 binds=["Test", Vector3(1, 2, 3)]]`)
+	for _, tc := range table {
+		testErrorWithConvertSection(t, tc.content, tc.convertFunc, tc.isError)
+	}
 }
 
 func TestConvertSectionToUnattachedNode(t *testing.T) {
 	testConvertFunc := func(s *GdResource) (interface{}, error) {
 		return convertSectionToUnattachedNode(s)
 	}
-	assumeError := func(t *testing.T, content string) {
-		testErrorWithConvertSection(t, content, testConvertFunc, true)
-	}
-	assumeNoError := func(t *testing.T, content string) {
-		testErrorWithConvertSection(t, content, testConvertFunc, false)
+
+	table := []struct {
+		convertFunc func(s *GdResource) (interface{}, error)
+		isError     bool
+		content     string
+	}{
+		{testConvertFunc, true, `[gd_scene] [ext_resource]`},
+		{testConvertFunc, true, `[gd_scene] [node]`},
+		{testConvertFunc, true, `[gd_scene] [node name="Test" instance=ExtResource(1,3)]`},
+		{testConvertFunc, false, `[gd_scene] [node name="Test"]`},
+		{testConvertFunc, false, `[gd_scene] [node name="Test" instance=ExtResource(1)]`},
 	}
 
-	assumeError(t, `[gd_scene] [ext_resource]`)
-	assumeError(t, `[gd_scene] [node]`)
-	assumeError(t, `[gd_scene] [node name="Test" instance=ExtResource(1,3)]`)
-	assumeNoError(t, `[gd_scene] [node name="Test"]`)
-	assumeNoError(t, `[gd_scene] [node name="Test" instance=ExtResource(1)]`)
+	for _, tc := range table {
+		testErrorWithConvertSection(t, tc.content, tc.convertFunc, tc.isError)
+	}
 }
 
 func TestBuildNodeTreeWithInvalidTree(t *testing.T) {
@@ -279,7 +306,7 @@ func TestIntegrationConvertToGodotSceneFixtures(t *testing.T) {
 		panic(err)
 	}
 
-	files, err := filepath.Glob(filepath.Join(cwd, "../../test/fixtures", "*"))
+	files, err := filepath.Glob(filepath.Join(cwd, "..", "..", "test", "fixtures", "*"))
 	if err != nil {
 		panic(err)
 	}

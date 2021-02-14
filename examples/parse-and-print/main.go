@@ -31,14 +31,14 @@ func main() {
 	if len(scene.ExtResources) > 0 {
 		fmt.Println("## ExtResources:")
 		for _, res := range scene.ExtResources {
-			fmt.Printf("\t%s (id=%d, path='%s') [%s]\n", res.Type, res.Id, res.Path, res.LexerPosition)
+			fmt.Printf("\t%s (id=%d, path='%s') [%s]\n", res.Type, res.ID, res.Path, res.LexerPosition)
 		}
 	}
 
 	if len(scene.SubResources) > 0 {
 		fmt.Println("## SubResources:")
 		for _, res := range scene.SubResources {
-			fmt.Printf("\t%s (id=%d) [%s]\n", res.Type, res.Id, res.LexerPosition)
+			fmt.Printf("\t%s (id=%d) [%s]\n", res.Type, res.ID, res.LexerPosition)
 		}
 	}
 

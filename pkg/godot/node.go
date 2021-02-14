@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// Node is Godots central building block. Godot stores scenes as a tree of nodes.
 type Node struct {
 	Name     string
 	Type     string
@@ -16,11 +17,13 @@ type Node struct {
 	MetaData
 }
 
+// AddNode adds a node as the child of the current node
 func (n *Node) AddNode(node *Node) {
 	node.Parent = n
 	n.Children[node.Name] = node
 }
 
+// GetNode retrieves a node for a given path
 func (n *Node) GetNode(path string) (*Node, error) {
 	if path == "." {
 		return n, nil
@@ -41,6 +44,7 @@ func (n *Node) GetNode(path string) (*Node, error) {
 	return root, nil
 }
 
+// RemoveNode deletes a child node
 func (n *Node) RemoveNode(path string) error {
 	node, err := n.GetNode(path)
 	if err != nil {

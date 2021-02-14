@@ -5,7 +5,7 @@ package godot
 type ExtResource struct {
 	Path string
 	Type string
-	Id   int64
+	ID   int64
 	MetaData
 }
 
@@ -13,7 +13,7 @@ type ExtResource struct {
 // Documentation: https://docs.godotengine.org/en/stable/development/file_formats/tscn.html#internal-resources
 type SubResource struct {
 	Type   string
-	Id     int64
+	ID     int64
 	Fields map[string]interface{}
 	MetaData
 }
