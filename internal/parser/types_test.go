@@ -16,6 +16,8 @@ func TestTscnFileGetAttribute(t *testing.T) {
 	value2, err := scene.GetAttribute("value2")
 	assert.NoError(t, err)
 	assert.Equal(t, "test", value2.Raw())
+	_, err = scene.GetAttribute("value3")
+	assert.Error(t, err)
 }
 
 func TestGdResourceGetAttribute(t *testing.T) {
@@ -30,6 +32,8 @@ func TestGdResourceGetAttribute(t *testing.T) {
 	value2, err := node.GetAttribute("value2")
 	assert.NoError(t, err)
 	assert.Equal(t, "test", value2.Raw())
+	_, err = node.GetAttribute("value3")
+	assert.Error(t, err)
 }
 
 func TestGdResourceGetField(t *testing.T) {
@@ -46,6 +50,8 @@ value2="test"`
 	value2, err := node.GetField("value2")
 	assert.NoError(t, err)
 	assert.Equal(t, "test", value2.Raw())
+	_, err = node.GetField("value3")
+	assert.Error(t, err)
 }
 
 func TestGdMapFieldToString(t *testing.T) {

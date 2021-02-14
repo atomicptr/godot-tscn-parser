@@ -60,6 +60,14 @@ func (tscn *TscnFile) ConvertToGodotScene() (*godot.Scene, error) {
 			scene.Connections = append(scene.Connections, connection)
 			continue
 		}
+
+		// ignore nodes for now...
+		if section.ResourceType == "node" {
+			continue
+		}
+
+		// something else found? Whoops, throw error
+		return nil, fmt.Errorf("invalid resource type found: %s [%s]", section.ResourceType, section.Pos)
 	}
 
 	rootNode, err := buildNodeTree(tscn)
@@ -133,8 +141,9 @@ func convertSectionToSubResource(section *GdResource) (*godot.SubResource, error
 	}
 
 	subResource := godot.SubResource{
-		Type: *resType.String,
-		Id:   *id.Integer,
+		Type:   *resType.String,
+		Id:     *id.Integer,
+		Fields: make(map[string]interface{}),
 		MetaData: godot.MetaData{
 			LexerPosition: section.Pos,
 		},
@@ -227,6 +236,10 @@ func findNodes(tscn *TscnFile) (*GdResource, []*GdResource) {
 }
 
 func convertSectionToUnattachedNode(section *GdResource) (*godot.Node, error) {
+	if section == nil {
+		return nil, fmt.Errorf("section was nil")
+	}
+
 	if section.ResourceType != "node" {
 		return nil, fmt.Errorf("you can't convert a %s to node", section.ResourceType)
 	}
