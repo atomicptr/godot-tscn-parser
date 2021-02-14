@@ -251,6 +251,27 @@ func TestBuildNodeTreeWithInvalidChildNode(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestRegressionBuildNodeTreeWithEditableNodeWithMissingChildren(t *testing.T) {
+	content := `[gd_scene]
+[ext_resource path="res://TestNode.tscn" id=3]
+[node name="Root" type="Node2D"]
+[node name="EditableNode" instance=ExtResource(3)]
+[node name="ChildNodeWeAreOverwriting" parent="EditableNode/A/B/C/D"]
+position = Vector2(13, 37)
+[editable path="EditableNode"]`
+	tscnFile, err := Parse(strings.NewReader(content))
+	assert.NoError(t, err)
+
+	tree, err := buildNodeTree(tscnFile)
+	assert.NoError(t, err)
+
+	node, err := tree.GetNode("EditableNode/A/B/C/D/ChildNodeWeAreOverwriting")
+	assert.NoError(t, err)
+
+	assert.Equal(t, "ChildNodeWeAreOverwriting", node.Name)
+	assert.Len(t, node.Fields, 1)
+}
+
 // keep integration tests at the bottom please
 func TestIntegrationConvertToGodotSceneFixtures(t *testing.T) {
 	cwd, err := os.Getwd()

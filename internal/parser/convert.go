@@ -190,7 +190,7 @@ func buildNodeTree(tscn *TscnFile) (*godot.Node, error) {
 
 			parentNode, err := rootNode.GetNode(parentNodePath)
 			if err != nil {
-				couldntFindParentNodeCounter += 1
+				couldntFindParentNodeCounter++
 				if couldntFindParentNodeCounter >= couldntFindParentNodeCounterThreshold {
 					return nil, errors.New("can't build node tree, either its invalid or way too big (over a million nodes)")
 				}
