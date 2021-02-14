@@ -6,6 +6,6 @@ type Connection struct {
 	Signal string
 	Method string
 	Flags  int64
-	Binds  []interface{}
+	Binds  Value
 	MetaData
 }

@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"path/filepath"
@@ -279,7 +280,7 @@ func TestIntegrationParseFixtures(t *testing.T) {
 		}
 
 		_, err = Parse(f)
-		assert.NoError(t, err)
+		assert.NoError(t, errors.Wrapf(err, "error with fixture: '%s'", file))
 
 		err = f.Close()
 		if err != nil {

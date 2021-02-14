@@ -349,7 +349,7 @@ func convertSectionToConnection(section *GdResource) (*godot.Connection, error) 
 	}
 
 	if binds, err := section.GetAttribute("binds"); err == nil {
-		bindsArray := convertGdValue(binds).([]interface{})
+		bindsArray := convertGdValue(binds).(godot.Value)
 		conn.Binds = bindsArray
 	}
 
