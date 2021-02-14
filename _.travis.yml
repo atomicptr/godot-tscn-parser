@@ -6,6 +6,6 @@ before_script:
   - go get -u github.com/mattn/goveralls
   - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.35.2
 script:
-  - go test -v -covermode=count -coverprofile=coverage.out ./...
+  - 8 -coverprofile=coverage.out ./...
   - "$(go env GOPATH)/bin/golangci-lint run"
   - "$(go env GOPATH)/bin/goveralls -coverprofile=coverage.out -service=travis-ci"
