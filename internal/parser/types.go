@@ -56,21 +56,21 @@ func (res *GdResource) GetField(name string) (*GdValue, error) {
 
 // GdType represents a type with values
 type GdType struct {
-	Key        string     `parser:" @Ident (\"(\""`
-	Parameters []*GdValue `parser:"@@ ( ',' @@ )* \")\")?"`
+	Key        string     `parser:" @Ident ('('"`
+	Parameters []*GdValue `parser:"(@@ ( ',' @@ )* )? ')')?"`
 	Pos        lexer.Position
 }
 
 // GdField represents a field with a value
 type GdField struct {
-	Key   string   `parser:"@Ident \"=\""`
+	Key   string   `parser:"@Ident '='"`
 	Value *GdValue `parser:" @@"`
 	Pos   lexer.Position
 }
 
 // GdMapField represents a field with a value within a map
 type GdMapField struct {
-	Key   string   `parser:"@String \":\""`
+	Key   string   `parser:"@String ':'"`
 	Value *GdValue `parser:" @@"`
 	Pos   lexer.Position
 }
