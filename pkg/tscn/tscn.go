@@ -18,3 +18,12 @@ func ParseScene(r io.Reader) (*godot.Scene, error) {
 	}
 	return tscn.ConvertToGodotScene()
 }
+
+// ParseProject parses the central project.godot project configuration file
+func ParseProject(r io.Reader) (*godot.Project, error) {
+	tscn, err := parser.Parse(r)
+	if err != nil {
+		return nil, err
+	}
+	return tscn.ConvertToGodotProject()
+}
