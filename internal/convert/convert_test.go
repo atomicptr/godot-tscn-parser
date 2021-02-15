@@ -1,4 +1,4 @@
-package parser
+package convert
 
 import (
 	"os"
@@ -8,6 +8,8 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/atomicptr/godot-tscn-parser/internal/parser"
 )
 
 // keep integration tests at the bottom please
@@ -35,18 +37,18 @@ func TestIntegrationConvertFixtures(t *testing.T) {
 			panic(err)
 		}
 
-		tscnFile, err := Parse(f)
+		tscnFile, err := parser.Parse(f)
 		if err != nil {
 			continue
 		}
 
 		if tscnFile.Key == TscnTypeGodotScene {
-			_, err = tscnFile.ConvertToGodotScene()
+			_, err = ToGodotScene(tscnFile)
 			assert.NoError(t, errors.Wrapf(err, "error with fixture: '%s'", file))
 		}
 
 		if strings.HasSuffix(file, ".godot") {
-			_, err = tscnFile.ConvertToGodotProject()
+			_, err = ToGodotProject(tscnFile)
 			assert.NoError(t, errors.Wrapf(err, "error with fixture: '%s", file))
 		}
 

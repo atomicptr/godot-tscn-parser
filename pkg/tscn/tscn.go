@@ -6,6 +6,7 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/atomicptr/godot-tscn-parser/internal/convert"
 	"github.com/atomicptr/godot-tscn-parser/internal/parser"
 	"github.com/atomicptr/godot-tscn-parser/pkg/godot"
 )
@@ -16,7 +17,7 @@ func ParseScene(r io.Reader) (*godot.Scene, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "parser error")
 	}
-	return tscn.ConvertToGodotScene()
+	return convert.ToGodotScene(tscn)
 }
 
 // ParseProject parses the central project.godot project configuration file
@@ -25,5 +26,5 @@ func ParseProject(r io.Reader) (*godot.Project, error) {
 	if err != nil {
 		return nil, err
 	}
-	return tscn.ConvertToGodotProject()
+	return convert.ToGodotProject(tscn)
 }

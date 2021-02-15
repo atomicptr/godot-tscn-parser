@@ -1,9 +1,12 @@
-package parser
+package convert
 
-import "github.com/atomicptr/godot-tscn-parser/pkg/godot"
+import (
+	"github.com/atomicptr/godot-tscn-parser/internal/parser"
+	"github.com/atomicptr/godot-tscn-parser/pkg/godot"
+)
 
-// ConvertToGodotProject tries to convert a TscnFile structure to a godot.Project
-func (tscn *TscnFile) ConvertToGodotProject() (*godot.Project, error) {
+// ToGodotProject tries to convert a TscnFile structure to a godot.Project
+func ToGodotProject(tscn *parser.TscnFile) (*godot.Project, error) {
 	project := &godot.Project{
 		Android:     make(map[string]interface{}),
 		Audio:       make(map[string]interface{}),
@@ -27,7 +30,7 @@ func (tscn *TscnFile) ConvertToGodotProject() (*godot.Project, error) {
 		Fields:      make(map[string]interface{}),
 	}
 
-	insertFieldEntriesFromSection(&GdResource{Fields: tscn.Fields}, project.Fields)
+	insertFieldEntriesFromSection(&parser.GdResource{Fields: tscn.Fields}, project.Fields)
 
 	sectionMap := map[string]map[string]interface{}{
 		"android":     project.Android,

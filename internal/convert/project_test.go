@@ -1,4 +1,4 @@
-package parser
+package convert
 
 import (
 	"strings"
@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/atomicptr/godot-tscn-parser/internal/parser"
 	"github.com/atomicptr/godot-tscn-parser/pkg/godot"
 )
 
@@ -15,10 +16,10 @@ func TestConvertToGodotProject(t *testing.T) {
 config/name="Your first Godot Game"
 [customsection]
 customfield=1337`
-	tscnFile, err := Parse(strings.NewReader(content))
+	tscnFile, err := parser.Parse(strings.NewReader(content))
 	assert.NoError(t, err)
 
-	project, err := tscnFile.ConvertToGodotProject()
+	project, err := ToGodotProject(tscnFile)
 	assert.NoError(t, err)
 
 	configVersion, ok := project.Fields["config_version"]

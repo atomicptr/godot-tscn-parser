@@ -1,4 +1,4 @@
-package parser
+package convert
 
 func intArrayContains(n int, arr []int) bool {
 	for _, e := range arr {

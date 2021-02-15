@@ -1,22 +1,26 @@
-package parser
+// Package convert deals with converting parser output into an usable data structure see pkg/godot
+package convert
 
-import "github.com/atomicptr/godot-tscn-parser/pkg/godot"
+import (
+	"github.com/atomicptr/godot-tscn-parser/internal/parser"
+	"github.com/atomicptr/godot-tscn-parser/pkg/godot"
+)
 
 const (
 	// TscnTypeGodotScene is the identifier for a Godot Scene
 	TscnTypeGodotScene = "gd_scene"
 )
 
-func insertFieldEntriesFromSection(section *GdResource, fieldMap map[string]interface{}) {
+func insertFieldEntriesFromSection(section *parser.GdResource, fieldMap map[string]interface{}) {
 	for _, field := range section.Fields {
 		// TODO: properly parse structures like bones/0/name = "Bone", bones/0/parent = -1, etc.
 		fieldMap[field.Key] = convertGdValue(field.Value)
 	}
 }
 
-func convertGdValue(val *GdValue) interface{} {
+func convertGdValue(val *parser.GdValue) interface{} {
 	switch value := val.Raw().(type) {
-	case []*GdValue:
+	case []*parser.GdValue:
 		values := make([]interface{}, len(value))
 		for index, v := range value {
 			values[index] = v
@@ -27,7 +31,7 @@ func convertGdValue(val *GdValue) interface{} {
 				LexerPosition: val.Pos,
 			},
 		}
-	case []*GdMapField:
+	case []*parser.GdMapField:
 		m := make(map[string]interface{})
 		for _, kv := range value {
 			m[kv.Key] = convertGdValue(kv.Value)
@@ -38,7 +42,7 @@ func convertGdValue(val *GdValue) interface{} {
 				LexerPosition: val.Pos,
 			},
 		}
-	case GdType:
+	case parser.GdType:
 		params := make([]interface{}, len(value.Parameters))
 		for index, p := range value.Parameters {
 			params[index] = convertGdValue(p)
@@ -50,7 +54,7 @@ func convertGdValue(val *GdValue) interface{} {
 				LexerPosition: value.Pos,
 			},
 		}
-	case GdMapField:
+	case parser.GdMapField:
 		return godot.KeyValuePair{
 			Key:   value.Key,
 			Value: convertGdValue(value.Value),

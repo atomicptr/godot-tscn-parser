@@ -1,10 +1,12 @@
-package parser
+package convert
 
 import (
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/atomicptr/godot-tscn-parser/internal/parser"
 )
 
 func TestConvertToGodotScene(t *testing.T) {
@@ -29,10 +31,10 @@ position = Vector2( 811.747, -209.178 )
 [editable path="Hazards"]
 [connection signal="area_entered" from="Hazards" to="." method="_on_Hazards_area_entered"]`
 
-	tscnFile, err := Parse(strings.NewReader(content))
+	tscnFile, err := parser.Parse(strings.NewReader(content))
 	assert.NoError(t, err)
 
-	scene, err := tscnFile.ConvertToGodotScene()
+	scene, err := ToGodotScene(tscnFile)
 	assert.NoError(t, err)
 
 	assert.Len(t, scene.ExtResources, 3)
@@ -46,80 +48,80 @@ position = Vector2( 811.747, -209.178 )
 
 func TestConvertToGodotSceneWithResource(t *testing.T) {
 	content := `[gd_resource]`
-	tscnFile, err := Parse(strings.NewReader(content))
+	tscnFile, err := parser.Parse(strings.NewReader(content))
 	assert.NoError(t, err)
 
-	_, err = tscnFile.ConvertToGodotScene()
+	_, err = ToGodotScene(tscnFile)
 	assert.Error(t, err)
 }
 
 func TestConvertToGodotSceneWithInvalidExtResource(t *testing.T) {
 	content := `[gd_scene]
 [ext_resource]`
-	tscnFile, err := Parse(strings.NewReader(content))
+	tscnFile, err := parser.Parse(strings.NewReader(content))
 	assert.NoError(t, err)
 
-	_, err = tscnFile.ConvertToGodotScene()
+	_, err = ToGodotScene(tscnFile)
 	assert.Error(t, err)
 }
 
 func TestConvertToGodotSceneWithInvalidSubResource(t *testing.T) {
 	content := `[gd_scene]
 [sub_resource]`
-	tscnFile, err := Parse(strings.NewReader(content))
+	tscnFile, err := parser.Parse(strings.NewReader(content))
 	assert.NoError(t, err)
 
-	_, err = tscnFile.ConvertToGodotScene()
+	_, err = ToGodotScene(tscnFile)
 	assert.Error(t, err)
 }
 
 func TestConvertToGodotSceneWithInvalidEditable(t *testing.T) {
 	content := `[gd_scene]
 [editable]`
-	tscnFile, err := Parse(strings.NewReader(content))
+	tscnFile, err := parser.Parse(strings.NewReader(content))
 	assert.NoError(t, err)
 
-	_, err = tscnFile.ConvertToGodotScene()
+	_, err = ToGodotScene(tscnFile)
 	assert.Error(t, err)
 }
 
 func TestConvertToGodotSceneWithInvalidConnection(t *testing.T) {
 	content := `[gd_scene]
 [connection]`
-	tscnFile, err := Parse(strings.NewReader(content))
+	tscnFile, err := parser.Parse(strings.NewReader(content))
 	assert.NoError(t, err)
 
-	_, err = tscnFile.ConvertToGodotScene()
+	_, err = ToGodotScene(tscnFile)
 	assert.Error(t, err)
 }
 
 func TestConvertToGodotSceneWithInvalidResourceType(t *testing.T) {
 	content := `[gd_scene]
 [this_does_not_exist]`
-	tscnFile, err := Parse(strings.NewReader(content))
+	tscnFile, err := parser.Parse(strings.NewReader(content))
 	assert.NoError(t, err)
 
-	_, err = tscnFile.ConvertToGodotScene()
+	_, err = ToGodotScene(tscnFile)
 	assert.Error(t, err)
 }
 
 func TestConvertToGodotSceneWithInvalidNodeTree(t *testing.T) {
 	content := `[gd_scene]
 [node parent="." type="Node2D"]`
-	tscnFile, err := Parse(strings.NewReader(content))
+	tscnFile, err := parser.Parse(strings.NewReader(content))
 	assert.NoError(t, err)
 
-	_, err = tscnFile.ConvertToGodotScene()
+	_, err = ToGodotScene(tscnFile)
 	assert.Error(t, err)
 }
 
 func testErrorWithConvertSection(
 	t *testing.T,
 	content string,
-	convertFunc func(s *GdResource) (interface{}, error),
+	convertFunc func(s *parser.GdResource) (interface{}, error),
 	isError bool,
 ) {
-	tscnFile, err := Parse(strings.NewReader(content))
+	tscnFile, err := parser.Parse(strings.NewReader(content))
 	assert.NoError(t, err)
 
 	section := tscnFile.Sections[0]
@@ -132,12 +134,12 @@ func testErrorWithConvertSection(
 }
 
 func TestConvertSectionToExtResource(t *testing.T) {
-	testConvertFunc := func(s *GdResource) (interface{}, error) {
+	testConvertFunc := func(s *parser.GdResource) (interface{}, error) {
 		return convertSectionToExtResource(s)
 	}
 
 	table := []struct {
-		convertFunc func(s *GdResource) (interface{}, error)
+		convertFunc func(s *parser.GdResource) (interface{}, error)
 		isError     bool
 		content     string
 	}{
@@ -154,12 +156,12 @@ func TestConvertSectionToExtResource(t *testing.T) {
 }
 
 func TestConvertSectionToSubResource(t *testing.T) {
-	testConvertFunc := func(s *GdResource) (interface{}, error) {
+	testConvertFunc := func(s *parser.GdResource) (interface{}, error) {
 		return convertSectionToSubResource(s)
 	}
 
 	table := []struct {
-		convertFunc func(s *GdResource) (interface{}, error)
+		convertFunc func(s *parser.GdResource) (interface{}, error)
 		isError     bool
 		content     string
 	}{
@@ -175,12 +177,12 @@ func TestConvertSectionToSubResource(t *testing.T) {
 }
 
 func TestConvertSectionToEditable(t *testing.T) {
-	testConvertFunc := func(s *GdResource) (interface{}, error) {
+	testConvertFunc := func(s *parser.GdResource) (interface{}, error) {
 		return convertSectionToEditable(s)
 	}
 
 	table := []struct {
-		convertFunc func(s *GdResource) (interface{}, error)
+		convertFunc func(s *parser.GdResource) (interface{}, error)
 		isError     bool
 		content     string
 	}{
@@ -195,12 +197,12 @@ func TestConvertSectionToEditable(t *testing.T) {
 }
 
 func TestConvertSectionToConnection(t *testing.T) {
-	testConvertFunc := func(s *GdResource) (interface{}, error) {
+	testConvertFunc := func(s *parser.GdResource) (interface{}, error) {
 		return convertSectionToConnection(s)
 	}
 
 	table := []struct {
-		convertFunc func(s *GdResource) (interface{}, error)
+		convertFunc func(s *parser.GdResource) (interface{}, error)
 		isError     bool
 		content     string
 	}{
@@ -221,12 +223,12 @@ func TestConvertSectionToConnection(t *testing.T) {
 }
 
 func TestConvertSectionToUnattachedNode(t *testing.T) {
-	testConvertFunc := func(s *GdResource) (interface{}, error) {
+	testConvertFunc := func(s *parser.GdResource) (interface{}, error) {
 		return convertSectionToUnattachedNode(s)
 	}
 
 	table := []struct {
-		convertFunc func(s *GdResource) (interface{}, error)
+		convertFunc func(s *parser.GdResource) (interface{}, error)
 		isError     bool
 		content     string
 	}{
@@ -246,7 +248,7 @@ func TestBuildNodeTreeWithInvalidTree(t *testing.T) {
 	content := `[gd_scene]
 [node name="Test" type="Node2D"]
 [node name="Test3" parent="NonExistentParent" type="Node2D"]`
-	tscnFile, err := Parse(strings.NewReader(content))
+	tscnFile, err := parser.Parse(strings.NewReader(content))
 	assert.NoError(t, err)
 
 	tree, err := buildNodeTree(tscnFile)
@@ -262,7 +264,7 @@ func TestBuildNodeTreeWithInvalidParentParameter(t *testing.T) {
 	content := `[gd_scene]
 [node name="Test" type="Node2D"]
 [node name="Test2" parent=1234 type="Node2D"]`
-	tscnFile, err := Parse(strings.NewReader(content))
+	tscnFile, err := parser.Parse(strings.NewReader(content))
 	assert.NoError(t, err)
 
 	_, err = buildNodeTree(tscnFile)
@@ -273,7 +275,7 @@ func TestBuildNodeTreeWithInvalidChildNode(t *testing.T) {
 	content := `[gd_scene]
 [node name="Root Node" type="Node2D"]
 [node parent="." type="Node2D"]`
-	tscnFile, err := Parse(strings.NewReader(content))
+	tscnFile, err := parser.Parse(strings.NewReader(content))
 	assert.NoError(t, err)
 
 	_, err = buildNodeTree(tscnFile)
@@ -288,10 +290,10 @@ func TestRegressionConvertToGdSceneWithEditableNodeWithMissingChildren(t *testin
 [node name="ChildNodeWeAreOverwriting" parent="EditableNode/A/B/C/D"]
 position = Vector2(13, 37)
 [editable path="EditableNode"]`
-	tscnFile, err := Parse(strings.NewReader(content))
+	tscnFile, err := parser.Parse(strings.NewReader(content))
 	assert.NoError(t, err)
 
-	scene, err := tscnFile.ConvertToGodotScene()
+	scene, err := ToGodotScene(tscnFile)
 	assert.NoError(t, err)
 
 	node, err := scene.GetNode("EditableNode/A/B/C/D/ChildNodeWeAreOverwriting")
@@ -315,10 +317,10 @@ position = Vector2(42, 0)
 [node name="ChildNodeWeAreOverwriting" parent="EditableNode/A/B/CouldThisWork/D"]
 position = Vector2(13, 37)
 [editable path="EditableNode"]`
-	tscnFile, err := Parse(strings.NewReader(content))
+	tscnFile, err := parser.Parse(strings.NewReader(content))
 	assert.NoError(t, err)
 
-	scene, err := tscnFile.ConvertToGodotScene()
+	scene, err := ToGodotScene(tscnFile)
 	assert.NoError(t, err)
 
 	node, err := scene.GetNode("EditableNode/A/B/CouldThisWork/D/ChildNodeWeAreOverwriting")
