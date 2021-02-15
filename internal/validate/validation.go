@@ -21,6 +21,7 @@ func TscnFileFormat(tscnFile *parser.TscnFile) error {
 		{"Scene root must not have a path attribute", validatorFirstNodeHasNoParent},
 		{"Scene must not have multiple root nodes", validatorOnlyOneRootNode},
 		{"Scene must be set to supported version", validatorSceneIsInSupportedFormat},
+		{"All references to ExtResource/SubResource must exist", validatorTestIfAllResourceReferencesActuallyExist},
 	}
 
 	for _, validator := range validators {
