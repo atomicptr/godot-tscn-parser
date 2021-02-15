@@ -132,13 +132,24 @@ func doesTypeReferenceExistInTscnFile(tscnFile *parser.TscnFile, typeRef *parser
 	}
 
 	for _, section := range tscnFile.Sections {
+		// Section isn't ext_resource or sub_resource? Continue
 		if section.ResourceType != parser.ResourceTypeExtResource && section.ResourceType != parser.ResourceTypeSubResource {
+			continue
+		}
+
+		// Section is ext_resource and type isn't ExtResource? Continue
+		if section.ResourceType == parser.ResourceTypeExtResource && typeRef.Key != "ExtResource" {
+			continue
+		}
+
+		// Section is sub_resource and type isn't SubResource? Continue
+		if section.ResourceType == parser.ResourceTypeSubResource && typeRef.Key != "SubResource" {
 			continue
 		}
 
 		idValue, err := section.GetAttribute("id")
 		if err != nil {
-			return errors.Wrapf(err, "could not retrieve attribute idValue %s", typeRef.Pos)
+			return errors.Wrapf(err, "could not retrieve attribute id %s", typeRef.Pos)
 		}
 		if idValue.Integer == nil {
 			return fmt.Errorf("id field must be integer %s", typeRef.Pos)
