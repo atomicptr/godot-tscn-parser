@@ -8,6 +8,7 @@ import (
 
 	"github.com/atomicptr/godot-tscn-parser/internal/convert"
 	"github.com/atomicptr/godot-tscn-parser/internal/parser"
+	"github.com/atomicptr/godot-tscn-parser/internal/validate"
 	"github.com/atomicptr/godot-tscn-parser/pkg/godot"
 )
 
@@ -17,6 +18,9 @@ func ParseScene(r io.Reader) (*godot.Scene, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "parser error")
 	}
+	if err = validate.TscnFileFormat(tscn); err != nil {
+		return nil, errors.Wrap(err, "invalid file format")
+	}
 	return convert.ToGodotScene(tscn)
 }
 
@@ -24,7 +28,10 @@ func ParseScene(r io.Reader) (*godot.Scene, error) {
 func ParseProject(r io.Reader) (*godot.Project, error) {
 	tscn, err := parser.Parse(r)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "parser error")
+	}
+	if err = validate.TscnFileFormat(tscn); err != nil {
+		return nil, errors.Wrap(err, "invalid file format")
 	}
 	return convert.ToGodotProject(tscn)
 }

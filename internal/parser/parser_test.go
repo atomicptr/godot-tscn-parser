@@ -190,7 +190,7 @@ script = ExtResource( 1 )`
 		Values map[string]interface{}
 	}{
 		{
-			Key: "ext_resource",
+			Key: ResourceTypeExtResource,
 			Values: map[string]interface{}{
 				"path": "res://CombatSystem/Background/steppes.png",
 				"type": "Texture",
@@ -198,7 +198,7 @@ script = ExtResource( 1 )`
 			},
 		},
 		{
-			Key: "ext_resource",
+			Key: ResourceTypeExtResource,
 			Values: map[string]interface{}{
 				"path": "res://CombatSystem/UserInterface/UILayer.gd",
 				"type": "Script",
@@ -206,7 +206,7 @@ script = ExtResource( 1 )`
 			},
 		},
 		{
-			Key: "node",
+			Key: ResourceTypeNode,
 			Values: map[string]interface{}{
 				"name": "CombatDemo",
 				"type": "Node2D",

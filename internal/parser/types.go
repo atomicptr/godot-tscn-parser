@@ -7,6 +7,15 @@ import (
 	"github.com/alecthomas/participle/v2/lexer"
 )
 
+// Supported resource types
+const (
+	ResourceTypeExtResource = "ext_resource"
+	ResourceTypeSubResource = "sub_resource"
+	ResourceTypeEditable    = "editable"
+	ResourceTypeConnection  = "connection"
+	ResourceTypeNode        = "node"
+)
+
 // TscnFile represents a .tscn file
 type TscnFile struct {
 	Key        string        `parser:"('[' @Ident"`

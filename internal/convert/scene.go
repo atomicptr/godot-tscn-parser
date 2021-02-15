@@ -12,14 +12,6 @@ import (
 )
 
 const (
-	resourceTypeExtResource = "ext_resource"
-	resourceTypeSubResource = "sub_resource"
-	resourceTypeEditable    = "editable"
-	resourceTypeConnection  = "connection"
-	resourceTypeNode        = "node"
-)
-
-const (
 	internalNodeUnassignableNodes = "__Internal_UnassignableNodes"
 	internalNodeType              = "__Internal"
 	internalNodeParentPathField   = "__Internal_ParentPath"
@@ -46,7 +38,7 @@ func ToGodotScene(tscn *parser.TscnFile) (*godot.Scene, error) {
 	// handle everything that isn't a node
 	for _, section := range tscn.Sections {
 		// External resources
-		if section.ResourceType == resourceTypeExtResource {
+		if section.ResourceType == parser.ResourceTypeExtResource {
 			res, err := convertSectionToExtResource(section)
 			if err != nil {
 				return nil, err
@@ -56,7 +48,7 @@ func ToGodotScene(tscn *parser.TscnFile) (*godot.Scene, error) {
 		}
 
 		// Internal resources
-		if section.ResourceType == resourceTypeSubResource {
+		if section.ResourceType == parser.ResourceTypeSubResource {
 			res, err := convertSectionToSubResource(section)
 			if err != nil {
 				return nil, err
@@ -66,7 +58,7 @@ func ToGodotScene(tscn *parser.TscnFile) (*godot.Scene, error) {
 		}
 
 		// editable scenes
-		if section.ResourceType == resourceTypeEditable {
+		if section.ResourceType == parser.ResourceTypeEditable {
 			editable, err := convertSectionToEditable(section)
 			if err != nil {
 				return nil, err
@@ -76,7 +68,7 @@ func ToGodotScene(tscn *parser.TscnFile) (*godot.Scene, error) {
 		}
 
 		// connections
-		if section.ResourceType == resourceTypeConnection {
+		if section.ResourceType == parser.ResourceTypeConnection {
 			connection, err := convertSectionToConnection(section)
 			if err != nil {
 				return nil, err
@@ -86,7 +78,7 @@ func ToGodotScene(tscn *parser.TscnFile) (*godot.Scene, error) {
 		}
 
 		// ignore nodes for now...
-		if section.ResourceType == resourceTypeNode {
+		if section.ResourceType == parser.ResourceTypeNode {
 			continue
 		}
 
@@ -218,7 +210,7 @@ func convertNodeMapIntoSortedSlice(nodeMap map[string]*godot.Node) []*godot.Node
 }
 
 func convertSectionToExtResource(section *parser.GdResource) (*godot.ExtResource, error) {
-	if section.ResourceType != resourceTypeExtResource {
+	if section.ResourceType != parser.ResourceTypeExtResource {
 		return nil, fmt.Errorf("you can't convert a %s to ext_resource", section.ResourceType)
 	}
 
@@ -257,7 +249,7 @@ func convertSectionToExtResource(section *parser.GdResource) (*godot.ExtResource
 }
 
 func convertSectionToSubResource(section *parser.GdResource) (*godot.SubResource, error) {
-	if section.ResourceType != resourceTypeSubResource {
+	if section.ResourceType != parser.ResourceTypeSubResource {
 		return nil, fmt.Errorf("you can't convert a %s to sub_resource", section.ResourceType)
 	}
 
@@ -372,7 +364,7 @@ func buildNodeTree(tscn *parser.TscnFile) (*godot.Node, error) {
 
 func findNodes(tscn *parser.TscnFile) (rootNode *parser.GdResource, nodes []*parser.GdResource) {
 	for _, section := range tscn.Sections {
-		if section.ResourceType != resourceTypeNode {
+		if section.ResourceType != parser.ResourceTypeNode {
 			continue
 		}
 
@@ -394,7 +386,7 @@ func convertSectionToUnattachedNode(section *parser.GdResource) (*godot.Node, er
 		return nil, fmt.Errorf("section was nil")
 	}
 
-	if section.ResourceType != resourceTypeNode {
+	if section.ResourceType != parser.ResourceTypeNode {
 		return nil, fmt.Errorf("you can't convert a %s to node", section.ResourceType)
 	}
 
@@ -442,7 +434,7 @@ func attachTypeToNode(node *godot.Node, section *parser.GdResource) error {
 }
 
 func convertSectionToEditable(section *parser.GdResource) (*godot.Editable, error) {
-	if section.ResourceType != resourceTypeEditable {
+	if section.ResourceType != parser.ResourceTypeEditable {
 		return nil, fmt.Errorf("you can't convert a %s to editable", section.ResourceType)
 	}
 
@@ -462,7 +454,7 @@ func convertSectionToEditable(section *parser.GdResource) (*godot.Editable, erro
 }
 
 func convertSectionToConnection(section *parser.GdResource) (*godot.Connection, error) {
-	if section.ResourceType != resourceTypeConnection {
+	if section.ResourceType != parser.ResourceTypeConnection {
 		return nil, fmt.Errorf("you can't convert a %s to connection", section.ResourceType)
 	}
 
