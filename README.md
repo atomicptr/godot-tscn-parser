@@ -63,7 +63,7 @@ these files.
 
 ### What are "Volatile Nodes"?
 
-If you have an instanced scene in your scene and you mark it as editable (and actually edit something), you might find
+If you have an instanced scene in your scene, and you mark it as editable (and actually edit something), you might find
 nodes with the type "VolatileNode" in your tree. Since Godot doesn't store unchanged things, these nodes are a band aid
 for this library to render a proper tree structure. You can basically ignore them.
 

@@ -1,7 +1,7 @@
 # TODO: enable travis after making the code public
 language: go
 go:
-  - '1.15'
+  - '1.16'
 before_script:
   - go get -u github.com/mattn/goveralls
   - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.35.2
