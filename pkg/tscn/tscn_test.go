@@ -77,3 +77,14 @@ func TestParseResourceWithInvalidFormat(t *testing.T) {
 	_, err := ParseResource(strings.NewReader(content))
 	assert.Error(t, err)
 }
+
+func TestParseAndValidateTscnFileWithValidatorError(t *testing.T) {
+	content := `[gd_scene]
+[ext_resource path="res://Test.tscn" type="PackedScene" id=1]
+[node name="Root" type="Node2D"]
+[node name="Root 2" type="Node2D"]
+[node name="Child" type="Node2D" parent="."]
+position = Vector2(13, 37)`
+	_, err := ParseScene(strings.NewReader(content))
+	assert.Error(t, err)
+}

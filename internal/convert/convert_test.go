@@ -12,6 +12,14 @@ import (
 	"github.com/atomicptr/godot-tscn-parser/internal/parser"
 )
 
+func TestInsertFieldEntriesFromSection(t *testing.T) {
+	t.Fail()
+}
+
+func TestConvertGdValue(t *testing.T) {
+	t.Fail()
+}
+
 // keep integration tests at the bottom please
 func TestIntegrationConvertFixtures(t *testing.T) {
 	cwd, err := os.Getwd()
@@ -50,6 +58,11 @@ func TestIntegrationConvertFixtures(t *testing.T) {
 		if strings.HasSuffix(file, ".godot") {
 			_, err = ToGodotProject(tscnFile)
 			assert.NoError(t, errors.Wrapf(err, "error with fixture: '%s", file))
+		}
+
+		if tscnFile.Key == TscnTypeGodotResource {
+			_, err = ToGodotResource(tscnFile)
+			assert.NoError(t, errors.Wrapf(err, "error with fixture: '%s'", file))
 		}
 
 		err = f.Close()
