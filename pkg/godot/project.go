@@ -22,4 +22,5 @@ type Project struct {
 	World       map[string]interface{}
 	Rest        map[string]map[string]interface{}
 	Fields      map[string]interface{}
+	MetaData
 }

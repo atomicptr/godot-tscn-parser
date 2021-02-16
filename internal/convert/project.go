@@ -28,6 +28,9 @@ func ToGodotProject(tscn *parser.TscnFile) (*godot.Project, error) {
 		World:       make(map[string]interface{}),
 		Rest:        make(map[string]map[string]interface{}),
 		Fields:      make(map[string]interface{}),
+		MetaData: godot.MetaData{
+			LexerPosition: tscn.Pos,
+		},
 	}
 
 	insertFieldEntriesFromSection(&parser.GdResource{Fields: tscn.Fields}, project.Fields)

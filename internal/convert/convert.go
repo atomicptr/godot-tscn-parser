@@ -25,7 +25,7 @@ func convertGdValue(val *parser.GdValue) interface{} {
 	case []*parser.GdValue:
 		values := make([]interface{}, len(value))
 		for index, v := range value {
-			values[index] = v
+			values[index] = convertGdValue(v)
 		}
 		return godot.Value{
 			Value: values,

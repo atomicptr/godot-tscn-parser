@@ -50,4 +50,8 @@ func TestConvertToGodotResourceWithSomeInvalidValues(t *testing.T) {
 	tscnFile, _ = parser.Parse(strings.NewReader(`[gd_resource type=1337]`))
 	_, err = ToGodotResource(tscnFile)
 	assert.Error(t, err)
+
+	tscnFile, _ = parser.Parse(strings.NewReader(`[gd_resource type="TestType"] [custom_resource]`))
+	_, err = ToGodotResource(tscnFile)
+	assert.Error(t, err)
 }
