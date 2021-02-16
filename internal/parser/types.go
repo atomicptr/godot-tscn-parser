@@ -14,6 +14,7 @@ const (
 	ResourceTypeEditable    = "editable"
 	ResourceTypeConnection  = "connection"
 	ResourceTypeNode        = "node"
+	ResourceTypeResource    = "resource"
 )
 
 // TscnFile represents a .tscn file

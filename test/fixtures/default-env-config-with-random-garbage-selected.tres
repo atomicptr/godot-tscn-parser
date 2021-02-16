@@ -1,0 +1,88 @@
+[gd_resource type="Environment" load_steps=5 format=2]
+
+[ext_resource path="1234" type="Curve" id=1]
+
+[sub_resource type="CurveTexture" id=1]
+curve = ExtResource( 1 )
+
+[sub_resource type="ProceduralSky" id=2]
+
+[sub_resource type="GDScript" id=3]
+script/source = "var x = 5
+
+func f(x: Int):
+	return x * x
+
+print(f(x))
+"
+
+[resource]
+background_mode = 1
+background_sky = SubResource( 2 )
+background_color = Color( 0.956863, 0, 0, 1 )
+background_energy = 10.0
+ambient_light_color = Color( 0.345098, 0.317647, 0.317647, 1 )
+ambient_light_energy = 10.0
+fog_enabled = true
+fog_color = Color( 0.160784, 0.298039, 0.435294, 1 )
+fog_sun_color = Color( 0.909804, 0.890196, 0.85098, 1 )
+fog_sun_amount = 1.0
+fog_depth_enabled = false
+fog_depth_begin = 12.0
+fog_depth_end = 123.0
+fog_depth_curve = 0.554785
+fog_transmit_enabled = true
+fog_transmit_curve = 3.03143
+fog_height_enabled = true
+fog_height_min = 1300.3
+fog_height_max = -2.7
+fog_height_curve = 2.73208
+tonemap_mode = 1
+tonemap_exposure = 1.92
+tonemap_white = 10.81
+auto_exposure_enabled = true
+auto_exposure_scale = 1.0
+auto_exposure_min_luma = 2.0
+auto_exposure_max_luma = 3.0
+auto_exposure_speed = 4.0
+ss_reflections_enabled = true
+ss_reflections_max_steps = 128
+ss_reflections_fade_in = 0.235375
+ss_reflections_fade_out = 1.23114
+ss_reflections_depth_tolerance = 1.0
+ss_reflections_roughness = false
+ssao_enabled = true
+ssao_radius = 2.0
+ssao_intensity = 2.0
+ssao_radius2 = 1.0
+ssao_intensity2 = 2.0
+ssao_bias = 2.0
+ssao_color = Color( 1, 0, 0, 1 )
+ssao_quality = 0
+ssao_blur = 2
+ssao_edge_sharpness = 5.0
+dof_blur_far_enabled = true
+dof_blur_far_distance = 12.0
+dof_blur_far_transition = 6.0
+dof_blur_far_amount = 0.12
+dof_blur_far_quality = 0
+dof_blur_near_enabled = true
+dof_blur_near_distance = 3.0
+dof_blur_near_transition = 4.0
+dof_blur_near_amount = 1.0
+dof_blur_near_quality = 2
+glow_enabled = true
+glow_intensity = 2.0
+glow_strength = 2.0
+glow_bloom = 1.0
+glow_blend_mode = 1
+glow_hdr_threshold = 2.0
+glow_hdr_luminance_cap = 123.0
+glow_hdr_scale = 3.0
+glow_bicubic_upscale = true
+adjustment_enabled = true
+adjustment_brightness = 2.0
+adjustment_contrast = 2.0
+adjustment_saturation = 2.0
+adjustment_color_correction = SubResource( 1 )
+script = SubResource( 3 )

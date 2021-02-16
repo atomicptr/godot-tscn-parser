@@ -9,6 +9,8 @@ import (
 const (
 	// TscnTypeGodotScene is the identifier for a Godot Scene
 	TscnTypeGodotScene = "gd_scene"
+	// TscnTypeGodotResource is the identifier for .tres files
+	TscnTypeGodotResource = "gd_resource"
 )
 
 func insertFieldEntriesFromSection(section *parser.GdResource, fieldMap map[string]interface{}) {
