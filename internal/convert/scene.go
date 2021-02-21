@@ -98,7 +98,6 @@ func ToGodotScene(tscn *parser.TscnFile) (*godot.Scene, error) {
 		return nil, err
 	}
 
-	// TODO: add validator and validate scene
 	return scene, nil
 }
 

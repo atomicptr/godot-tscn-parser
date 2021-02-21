@@ -1,4 +1,3 @@
-# TODO: enable travis after making the code public
 language: go
 go:
   - '1.16'
