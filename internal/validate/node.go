@@ -22,6 +22,7 @@ func validatorFirstNodeHasNoParent(tscnFile *parser.TscnFile) error {
 				section.Pos,
 			)
 		}
+
 		// we only care about the first node
 		return nil
 	}
