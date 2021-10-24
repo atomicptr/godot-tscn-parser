@@ -5,10 +5,10 @@ import (
 	"io"
 
 	"github.com/alecthomas/participle/v2"
-	"github.com/alecthomas/participle/v2/lexer/stateful"
+	"github.com/alecthomas/participle/v2/lexer"
 )
 
-var tscnLexer = stateful.MustSimple([]stateful.Rule{
+var tscnLexer = lexer.MustSimple([]lexer.Rule{
 	{
 		Name:    "Ident",
 		Pattern: `([0-9]+)?/?[a-zA-Z_][a-zA-Z_\d/]*`,
