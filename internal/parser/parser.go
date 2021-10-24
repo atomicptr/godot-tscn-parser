@@ -10,6 +10,11 @@ import (
 
 var tscnLexer = lexer.MustSimple([]lexer.Rule{
 	{
+		Name:    "Float",
+		Pattern: `-?\d+(\.\d+|e-?\d+)(e-?\d+)?\b`,
+		Action:  nil,
+	},
+	{
 		Name:    "Ident",
 		Pattern: `([0-9]+)?/?[a-zA-Z_][a-zA-Z_\d/]*`,
 		Action:  nil,
@@ -17,11 +22,6 @@ var tscnLexer = lexer.MustSimple([]lexer.Rule{
 	{
 		Name:    "String",
 		Pattern: `"[^"]*"`,
-		Action:  nil,
-	},
-	{
-		Name:    "Float",
-		Pattern: `-?[0-9]*\.[0-9]+(e\-[0-9]+)?\b`,
 		Action:  nil,
 	},
 	{

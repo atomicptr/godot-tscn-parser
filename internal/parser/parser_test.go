@@ -9,6 +9,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestParseFail(t *testing.T) {
@@ -230,6 +231,15 @@ func TestReferenceTypeWithKeyValuePairs(t *testing.T) {
 reference_type = Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false)`
 	_, err := Parse(strings.NewReader(content))
 	assert.NoError(t, err)
+}
+
+func TestScientificENotation(t *testing.T) {
+	content := `[gd_scene]
+scientific_e_float = 1e-05`
+
+	scene, err := Parse(strings.NewReader(content))
+	require.NoError(t, err)
+	assertField(t, scene.Fields[0], "scientific_e_float", 1e-05)
 }
 
 // keep regression tests at the bottom please (above integration tests though)
