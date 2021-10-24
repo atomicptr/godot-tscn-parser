@@ -17,8 +17,8 @@ func assertField(t *testing.T, field *GdField, key string, values ...interface{}
 	}
 
 	switch field.Value.Raw().(type) {
-	case *GdType:
-		typeVal, ok := field.Value.Raw().(*GdType)
+	case GdType:
+		typeVal, ok := field.Value.Raw().(GdType)
 		assert.True(t, ok)
 		assert.Equal(t, values[0], typeVal.Key)
 		assert.Equal(t, len(values)-1, len(typeVal.Parameters))

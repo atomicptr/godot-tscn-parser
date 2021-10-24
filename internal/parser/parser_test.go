@@ -52,6 +52,7 @@ reference_field = ExtResource( 1337 )
 reference_field_multi_args = Vector2( 12.37, 13.37 )
 float_field = 13.37
 negative_float_field = -69.0 ; nice
+scientific_e_float_field = 1e-05
 bool_field = true
 array_field = [ 13.37, 42.0, 12.12 ]
 map_field = {
@@ -62,41 +63,38 @@ map_field = {
 	assert.NoError(t, err)
 
 	for _, field := range scene.Fields {
-		if !assertField(t, field, "int_field", int64(10)) {
-			continue
-		}
-		if !assertField(t, field, "negative_int_field", int64(-10)) {
-			continue
-		}
-		if !assertField(t, field, "string_field", "Test") {
-			continue
-		}
-		if !assertField(t, field, "reference_field", "ExtResource", int64(1337)) {
-			continue
-		}
-		if !assertField(t, field, "reference_field_multi_args", "Vector2", 12.37, 13.37) {
-			continue
-		}
-		if !assertField(t, field, "float_field", 13.37) {
-			continue
-		}
-		if !assertField(t, field, "negative_float_field", -69.0) {
-			continue
-		}
-		if !assertField(t, field, "bool_field", true) {
-			continue
-		}
-		if !assertField(t, field, "array_field", 13.37, 42.0, 12.12) {
-			continue
-		}
-		if !assertField(t, field, "map_field",
-			keyValuePair{Key: "string_value", Value: "value"},
-			keyValuePair{Key: "float_value", Value: 13.37},
-		) {
-			continue
-		}
-
-		assert.Fail(t, fmt.Sprintf("Unknown field found '%s", field.Key))
+		currentField := field
+		t.Run(field.Key, func(t *testing.T) {
+			switch currentField.Key {
+			case "int_field":
+				assertField(t, currentField, "int_field", int64(10))
+			case "negative_int_field":
+				assertField(t, currentField, "negative_int_field", int64(-10))
+			case "string_field":
+				assertField(t, currentField, "string_field", "Test")
+			case "reference_field":
+				assertField(t, currentField, "reference_field", "ExtResource", int64(1337))
+			case "reference_field_multi_args":
+				assertField(t, currentField, "reference_field_multi_args", "Vector2", 12.37, 13.37)
+			case "float_field":
+				assertField(t, currentField, "float_field", 13.37)
+			case "negative_float_field":
+				assertField(t, currentField, "negative_float_field", -69.0)
+			case "scientific_e_float_field":
+				assertField(t, currentField, "scientific_e_float_field", 1e-05)
+			case "bool_field":
+				assertField(t, currentField, "bool_field", true)
+			case "array_field":
+				assertField(t, currentField, "array_field", 13.37, 42.0, 12.12)
+			case "map_field":
+				assertField(t, currentField, "map_field",
+					keyValuePair{Key: "string_value", Value: "value"},
+					keyValuePair{Key: "float_value", Value: 13.37},
+				)
+			default:
+				assert.Fail(t, fmt.Sprintf("Unknown field found '%s", currentField.Key))
+			}
+		})
 	}
 }
 
